@@ -1,63 +1,245 @@
 import Image from "next/image";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Upload, FileText, CheckCircle, Loader2, Download } from "lucide-react";
+import { ResumeData } from "@/types/resume";
+import dynamic from "next/dynamic";
+
+// クライアントサイドでのみレンダリングするためにdynamic importを使用
+const PDFDownloadLink = dynamic(
+  () => import("@react-pdf/renderer").then((mod) => mod.PDFDownloadLink),
+  {
+    ssr: false,
+    loading: () => <p>Loading PDF...</p>,
+  }
+);
+import { ResumePDF } from "@/components/pdf/ResumePDF";
 
 export default function Home() {
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatedData, setGeneratedData] = useState<ResumeData | null>(null);
+
+  const handleGenerate = async () => {
+    setIsGenerating(true);
+    setGeneratedData(null);
+    
+    try {
+      // APIを呼び出す
+      const response = await fetch("/api/generate-resume", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          // ここにフォームの入力値を渡す (現在はダミー)
+          userProfile: {
+             firstName: "Taro",
+             lastName: "Yamada"
+          }
+        }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setGeneratedData(data.data);
+      } else {
+        alert("Failed to generate resume");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("An error occurred");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white border-b shadow-sm sticky top-0 z-10">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center text-white font-bold">
+              AI
+            </div>
+            <h1 className="text-xl font-bold text-gray-800">Japan Resume Builder</h1>
+          </div>
+          <nav>
+            <Button variant="ghost" className="text-sm">English / 日本語</Button>
+          </nav>
+        </div>
+      </header>
+
+      <main className="container mx-auto px-4 py-8 max-w-4xl">
+        <div className="text-center mb-10">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            Create Your Japanese Resume with AI
+          </h2>
+          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+            Upload your English resume or enter your details, and our AI will generate a professional Japanese "Rirekisho" (Resume) and "Shokumu Keirekisho" (CV).
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        <div className="grid md:grid-cols-3 gap-6">
+          {/* Main Form Area */}
+          <div className="md:col-span-2 space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Profile Information</CardTitle>
+                <CardDescription>
+                  Enter your basic information as it should appear on your resume.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="firstName">First Name</Label>
+                    <Input id="firstName" placeholder="Kyohei" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="lastName">Last Name</Label>
+                    <Input id="lastName" placeholder="Nishi" />
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input id="email" type="email" placeholder="example@email.com" />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="photo">Face Photo</Label>
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center text-center hover:bg-gray-50 cursor-pointer transition-colors">
+                    <Upload className="h-8 w-8 text-gray-400 mb-2" />
+                    <p className="text-sm text-gray-600">Click to upload or drag & drop</p>
+                    <p className="text-xs text-gray-400 mt-1">PNG, JPG up to 5MB</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Resume Data</CardTitle>
+                <CardDescription>
+                  Upload your existing English resume to auto-fill details.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                 <div className="space-y-4">
+                    <div className="border-2 border-dashed border-blue-200 bg-blue-50 rounded-lg p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-blue-100 transition-colors">
+                      <FileText className="h-10 w-10 text-blue-600 mb-3" />
+                      <h3 className="font-semibold text-blue-900">Upload English Resume (PDF)</h3>
+                      <p className="text-sm text-blue-700 mt-1">AI will analyze and translate your skills</p>
+                    </div>
+                    
+                    <div className="relative flex items-center py-2">
+                      <div className="flex-grow border-t border-gray-200"></div>
+                      <span className="flex-shrink-0 mx-4 text-gray-400 text-xs uppercase">Or enter manually</span>
+                      <div className="flex-grow border-t border-gray-200"></div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="summary">Professional Summary / Skills</Label>
+                      <Textarea id="summary" placeholder="I have 5 years of experience in..." className="min-h-[150px]" />
+                    </div>
+                 </div>
+              </CardContent>
+              <CardFooter>
+                <Button 
+                  onClick={handleGenerate}
+                  disabled={isGenerating}
+                  className="w-full text-lg py-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg"
+                >
+                  {isGenerating ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    "Generate Japanese Resume"
+                  )}
+                </Button>
+              </CardFooter>
+            </Card>
+            
+            {/* Result Preview (Temporary) */}
+            {generatedData && (
+              <Card className="mt-6 border-green-200 bg-green-50">
+                <CardHeader>
+                  <CardTitle className="text-green-800 flex justify-between items-center">
+                    <span>Success! Resume Generated</span>
+                    <PDFDownloadLink
+                      document={<ResumePDF data={generatedData} />}
+                      fileName="japanese_resume.pdf"
+                    >
+                      {/* @ts-ignore - PDFDownloadLink children type mismatch workaround */}
+                      {({ blob, url, loading, error }) => (
+                        <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white">
+                          {loading ? (
+                            "Preparing PDF..."
+                          ) : (
+                            <>
+                              <Download className="mr-2 h-4 w-4" /> Download PDF
+                            </>
+                          )}
+                        </Button>
+                      )}
+                    </PDFDownloadLink>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="font-semibold text-green-900">Preview Data:</h4>
+                      <p className="text-sm text-green-800">
+                        {generatedData.basicInfo.firstName} {generatedData.basicInfo.lastName}
+                      </p>
+                    </div>
+                    <pre className="text-xs bg-white p-4 rounded border overflow-auto max-h-60">
+                      {JSON.stringify(generatedData, null, 2)}
+                    </pre>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+
+          {/* Sidebar / Info */}
+          <div className="space-y-6">
+            <Card className="bg-white/50 border-none shadow-none md:shadow-sm md:bg-white md:border">
+              <CardHeader>
+                <CardTitle className="text-lg">Why use this?</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                  <div className="text-sm">
+                    <strong className="block text-gray-800">Japanese Format</strong>
+                    Standard format accepted by Japanese companies.
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                  <div className="text-sm">
+                    <strong className="block text-gray-800">AI Translation</strong>
+                    Natural business Japanese translation.
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                  <div className="text-sm">
+                    <strong className="block text-gray-800">Privacy First</strong>
+                    Your data is secure and not shared publicly.
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </main>
     </div>
