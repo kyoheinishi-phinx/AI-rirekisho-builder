@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Upload, FileText, CheckCircle, Loader2, Download } from "lucide-react";
+import { Upload, FileText, CheckCircle, Loader2, Download, X } from "lucide-react";
 import { ResumeData } from "@/types/resume";
 import dynamic from "next/dynamic";
 
@@ -26,7 +26,11 @@ export default function Home() {
   const [isUploading, setIsUploading] = useState(false);
   const [generatedData, setGeneratedData] = useState<ResumeData | null>(null);
   const [resumeText, setResumeText] = useState("");
+  
+  // 顔写真のプレビュー用state
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
+  // PDFアップロード処理
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -56,6 +60,37 @@ export default function Home() {
     }
   };
 
+  // 顔写真アップロード処理
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // 画像ファイルかチェック
+    if (!file.type.startsWith("image/")) {
+      alert("Please upload an image file (JPG, PNG).");
+      return;
+    }
+
+    // 5MB制限チェック (簡易)
+    if (file.size > 5 * 1024 * 1024) {
+      alert("File size should be less than 5MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        setPhotoPreview(event.target.result as string);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemovePhoto = () => {
+    setPhotoPreview(null);
+  };
+
+  // 履歴書生成処理
   const handleGenerate = async () => {
     setIsGenerating(true);
     setGeneratedData(null);
@@ -68,10 +103,10 @@ export default function Home() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          // ここにフォームの入力値を渡す (現在はダミー)
           userProfile: {
              firstName: "Taro",
-             lastName: "Yamada"
+             lastName: "Yamada",
+             photoBase64: photoPreview // 顔写真データを渡す
           },
           currentResumeText: resumeText // 抽出したテキストを送信
         }),
@@ -79,7 +114,16 @@ export default function Home() {
 
       const data = await response.json();
       if (data.success) {
-        setGeneratedData(data.data);
+        // AIが生成したデータに、クライアント側で持っている写真データを結合する
+        // (AIは写真データを返さない場合があるため、ここで補完する)
+        const finalData = {
+          ...data.data,
+          basicInfo: {
+            ...data.data.basicInfo,
+            photoBase64: photoPreview || data.data.basicInfo.photoBase64
+          }
+        };
+        setGeneratedData(finalData);
       } else {
         alert("Failed to generate resume");
       }
@@ -147,11 +191,39 @@ export default function Home() {
 
                 <div className="space-y-2">
                   <Label htmlFor="photo">Face Photo</Label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center text-center hover:bg-gray-50 cursor-pointer transition-colors">
-                    <Upload className="h-8 w-8 text-gray-400 mb-2" />
-                    <p className="text-sm text-gray-600">Click to upload or drag & drop</p>
-                    <p className="text-xs text-gray-400 mt-1">PNG, JPG up to 5MB</p>
-                  </div>
+                  
+                  {photoPreview ? (
+                    <div className="relative w-32 h-40 mx-auto border rounded-lg overflow-hidden group">
+                      <Image 
+                        src={photoPreview} 
+                        alt="Face Photo Preview" 
+                        fill 
+                        className="object-cover" 
+                      />
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                         <Button 
+                           variant="destructive" 
+                           size="icon" 
+                           onClick={handleRemovePhoto}
+                           className="h-8 w-8"
+                         >
+                           <X className="h-4 w-4" />
+                         </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center text-center hover:bg-gray-50 cursor-pointer transition-colors relative">
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        onChange={handlePhotoUpload}
+                      />
+                      <Upload className="h-8 w-8 text-gray-400 mb-2" />
+                      <p className="text-sm text-gray-600">Click to upload or drag & drop</p>
+                      <p className="text-xs text-gray-400 mt-1">PNG, JPG up to 5MB</p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>

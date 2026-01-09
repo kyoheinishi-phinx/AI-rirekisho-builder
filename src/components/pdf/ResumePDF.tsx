@@ -1,24 +1,40 @@
 import React from 'react';
-import { Page, Text, View, Document, StyleSheet, Font } from '@react-pdf/renderer';
+import { Page, Text, View, Document, StyleSheet, Image } from '@react-pdf/renderer';
 import { ResumeData } from '@/types/resume';
 
 // 日本語フォントの登録 (今回は標準フォントで代用するが、本番ではIPAフォントなどを登録する必要がある)
 // 注意: @react-pdf/rendererの標準フォントは日本語に対応していないため、
 // 実際には日本語フォント (.ttf) をpublicフォルダに置いて登録する必要があります。
-// ここではモックアップとして英語のみ、または文字化けを許容する形で実装します。
-// ※本番環境では必ず日本語フォントを登録してください。
 
 const styles = StyleSheet.create({
   page: {
     padding: 30,
     fontSize: 11,
-    fontFamily: 'Helvetica', // 日本語フォントがないためHelveticaを使用
+    fontFamily: 'Helvetica',
   },
   header: {
     marginBottom: 20,
     borderBottomWidth: 1,
     borderBottomColor: '#000',
     paddingBottom: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  headerInfo: {
+    flex: 1,
+  },
+  photoContainer: {
+    width: 80,
+    height: 100,
+    marginLeft: 20,
+    borderWidth: 1,
+    borderColor: '#ddd',
+  },
+  photo: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
   },
   title: {
     fontSize: 24,
@@ -46,30 +62,6 @@ const styles = StyleSheet.create({
   value: {
     flex: 1,
   },
-  table: {
-    display: 'flex',
-    width: 'auto',
-    borderStyle: 'solid',
-    borderWidth: 1,
-    borderRightWidth: 0,
-    borderBottomWidth: 0,
-    marginTop: 10,
-  },
-  tableRow: {
-    margin: 'auto',
-    flexDirection: 'row',
-  },
-  tableCol: {
-    width: '25%',
-    borderStyle: 'solid',
-    borderWidth: 1,
-    borderLeftWidth: 0,
-    borderTopWidth: 0,
-  },
-  tableCell: {
-    margin: 5,
-    fontSize: 10,
-  },
 });
 
 interface ResumePDFProps {
@@ -80,15 +72,30 @@ export const ResumePDF: React.FC<ResumePDFProps> = ({ data }) => (
   <Document>
     <Page size="A4" style={styles.page}>
       <View style={styles.header}>
-        <Text style={styles.title}>RESUME (Rirekisho)</Text>
-        <View style={styles.row}>
-          <Text style={styles.label}>Name:</Text>
-          <Text style={styles.value}>{data.basicInfo.firstName} {data.basicInfo.lastName}</Text>
+        <View style={styles.headerInfo}>
+          <Text style={styles.title}>RESUME (Rirekisho)</Text>
+          <View style={styles.row}>
+            <Text style={styles.label}>Name:</Text>
+            <Text style={styles.value}>{data.basicInfo.firstName} {data.basicInfo.lastName}</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Email:</Text>
+            <Text style={styles.value}>{data.basicInfo.email}</Text>
+          </View>
+          {data.basicInfo.phone && (
+            <View style={styles.row}>
+              <Text style={styles.label}>Phone:</Text>
+              <Text style={styles.value}>{data.basicInfo.phone}</Text>
+            </View>
+          )}
         </View>
-        <View style={styles.row}>
-          <Text style={styles.label}>Email:</Text>
-          <Text style={styles.value}>{data.basicInfo.email}</Text>
-        </View>
+
+        {/* 顔写真エリア */}
+        {data.basicInfo.photoBase64 && (
+          <View style={styles.photoContainer}>
+            <Image src={data.basicInfo.photoBase64} style={styles.photo} />
+          </View>
+        )}
       </View>
 
       <View style={styles.section}>
@@ -126,4 +133,3 @@ export const ResumePDF: React.FC<ResumePDFProps> = ({ data }) => (
     </Page>
   </Document>
 );
-

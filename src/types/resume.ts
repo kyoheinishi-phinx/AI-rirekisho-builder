@@ -11,6 +11,7 @@ export interface ResumeData {
     address?: string;
     birthDate?: string;
     gender?: string;
+    photoBase64?: string;   // 顔写真データ (Base64)
   };
   education: Education[];
   workExperience: WorkExperience[];
@@ -51,4 +52,3 @@ export interface GenerateResumeRequest {
   userProfile?: Partial<ResumeData['basicInfo']>;
   jobDescription?: string; // 応募先JD (あれば最適化に使用)
 }
-
