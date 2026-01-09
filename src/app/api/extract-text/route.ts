@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
 
     // PDFParserを使ってテキスト抽出 (非同期処理)
     const text = await new Promise<string>((resolve, reject) => {
-      // コンストラクタの引数を修正: 第二引数は boolean (enableRawOutput)
+      // コンストラクタの引数: 第二引数は boolean (enableRawOutput)
       const pdfParser = new PDFParser(null, true); 
 
       pdfParser.on("pdfParser_dataError", (errData: any) =>
@@ -27,9 +27,35 @@ export async function POST(req: NextRequest) {
       );
 
       pdfParser.on("pdfParser_dataReady", (pdfData: any) => {
-        // pdf2jsonの出力形式（raw）からテキストだけを抽出して繋げる
-        const rawText = pdfParser.getRawTextContent();
-        resolve(rawText);
+        try {
+          // getRawTextContent() が不安定なため、手動でテキストを結合する
+          // pdfData.Pages[].Texts[].R[].T (URLエンコードされている) をデコードして結合
+          let extractedText = "";
+          
+          if (pdfData && pdfData.Pages) {
+            for (const page of pdfData.Pages) {
+              if (page.Texts) {
+                for (const textItem of page.Texts) {
+                  if (textItem.R) {
+                    for (const run of textItem.R) {
+                      if (run.T) {
+                        // decodeURIComponentでデコードする
+                        extractedText += decodeURIComponent(run.T) + " ";
+                      }
+                    }
+                  }
+                }
+              }
+              extractedText += "\n\n"; // ページ区切り
+            }
+          }
+          
+          resolve(extractedText.trim());
+        } catch (e) {
+          console.error("Error parsing PDF JSON:", e);
+          // エラー時は空文字または部分的なテキストを返すなどのフォールバック
+          reject(e);
+        }
       });
 
       // Bufferをパース実行
