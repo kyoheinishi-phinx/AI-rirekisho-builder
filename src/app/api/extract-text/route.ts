@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-// pdf-parse はCommonJS形式なので、import * as ... または require を使う必要がある場合がある
-// ただしNext.js環境下での型定義の問題を回避するため、requireを使用するパターンに変更
-const pdfParse = require("pdf-parse");
+import PDFParser from "pdf2json";
 
 export async function POST(req: NextRequest) {
   try {
@@ -19,13 +17,27 @@ export async function POST(req: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // PDFからテキストを抽出
-    const data = await pdfParse(buffer);
+    // PDFParserを使ってテキスト抽出 (非同期処理)
+    const text = await new Promise<string>((resolve, reject) => {
+      const pdfParser = new PDFParser(null, 1); // 1 = text only
+
+      pdfParser.on("pdfParser_dataError", (errData: any) =>
+        reject(errData.parserError)
+      );
+
+      pdfParser.on("pdfParser_dataReady", (pdfData: any) => {
+        // pdf2jsonの出力形式（raw）からテキストだけを抽出して繋げる
+        const rawText = pdfParser.getRawTextContent();
+        resolve(rawText);
+      });
+
+      // Bufferをパース実行
+      pdfParser.parseBuffer(buffer);
+    });
 
     return NextResponse.json({
       success: true,
-      text: data.text,
-      info: data.info,
+      text: text,
     });
   } catch (error) {
     console.error("Error extracting text from PDF:", error);
