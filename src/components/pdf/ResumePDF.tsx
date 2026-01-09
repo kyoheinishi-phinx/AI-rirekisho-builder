@@ -1,16 +1,28 @@
 import React from 'react';
-import { Page, Text, View, Document, StyleSheet, Image } from '@react-pdf/renderer';
+import { Page, Text, View, Document, StyleSheet, Image, Font } from '@react-pdf/renderer';
 import { ResumeData } from '@/types/resume';
 
-// 日本語フォントの登録 (今回は標準フォントで代用するが、本番ではIPAフォントなどを登録する必要がある)
-// 注意: @react-pdf/rendererの標準フォントは日本語に対応していないため、
-// 実際には日本語フォント (.ttf) をpublicフォルダに置いて登録する必要があります。
+// 日本語フォントの登録
+// Noto Sans JP (Google Fonts) を使用
+Font.register({
+  family: 'NotoSansJP',
+  fonts: [
+    {
+      src: 'https://fonts.gstatic.com/s/notosansjp/v52/-F6jfjtqLzI2JPCgQBnw7HFyzSD-AsregP8_1v4.ttf',
+      fontWeight: 'normal',
+    },
+    {
+      src: 'https://fonts.gstatic.com/s/notosansjp/v52/-F62fjtqLzI2JPCgQBnw7HFyzSD-AsregP8_1v5_kno.ttf',
+      fontWeight: 'bold',
+    }
+  ],
+});
 
 const styles = StyleSheet.create({
   page: {
     padding: 30,
     fontSize: 11,
-    fontFamily: 'Helvetica',
+    fontFamily: 'NotoSansJP', // 日本語フォントを適用
   },
   header: {
     marginBottom: 20,
@@ -73,10 +85,15 @@ export const ResumePDF: React.FC<ResumePDFProps> = ({ data }) => (
     <Page size="A4" style={styles.page}>
       <View style={styles.header}>
         <View style={styles.headerInfo}>
-          <Text style={styles.title}>RESUME (Rirekisho)</Text>
+          <Text style={styles.title}>履歴書 (Resume)</Text>
           <View style={styles.row}>
-            <Text style={styles.label}>Name:</Text>
-            <Text style={styles.value}>{data.basicInfo.firstName} {data.basicInfo.lastName}</Text>
+            <Text style={styles.label}>氏名 (Name):</Text>
+            <Text style={styles.value}>
+              {data.basicInfo.firstName} {data.basicInfo.lastName}
+              {data.basicInfo.firstNameKana && data.basicInfo.lastNameKana 
+                ? ` (${data.basicInfo.firstNameKana} ${data.basicInfo.lastNameKana})` 
+                : ''}
+            </Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Email:</Text>
@@ -84,7 +101,7 @@ export const ResumePDF: React.FC<ResumePDFProps> = ({ data }) => (
           </View>
           {data.basicInfo.phone && (
             <View style={styles.row}>
-              <Text style={styles.label}>Phone:</Text>
+              <Text style={styles.label}>電話番号:</Text>
               <Text style={styles.value}>{data.basicInfo.phone}</Text>
             </View>
           )}
@@ -99,35 +116,42 @@ export const ResumePDF: React.FC<ResumePDFProps> = ({ data }) => (
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Education</Text>
+        <Text style={styles.sectionTitle}>学歴 (Education)</Text>
         {data.education.map((edu, index) => (
           <View key={index} style={{ marginBottom: 8 }}>
             <Text style={{ fontWeight: 'bold' }}>{edu.schoolName}</Text>
-            <Text>{edu.degree} | {edu.startDate} - {edu.endDate || 'Present'}</Text>
+            <Text>{edu.degree} | {edu.startDate} - {edu.endDate || '現在'}</Text>
           </View>
         ))}
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Work Experience</Text>
+        <Text style={styles.sectionTitle}>職務経歴 (Work Experience)</Text>
         {data.workExperience.map((work, index) => (
           <View key={index} style={{ marginBottom: 12 }}>
             <Text style={{ fontWeight: 'bold' }}>{work.companyName} - {work.position}</Text>
             <Text style={{ fontSize: 10, color: '#666', marginBottom: 4 }}>
-              {work.startDate} - {work.endDate || 'Present'}
+              {work.startDate} - {work.endDate || '現在'}
             </Text>
             <Text>{work.description}</Text>
+            {work.achievements && work.achievements.length > 0 && (
+               <View style={{ marginTop: 4, marginLeft: 10 }}>
+                 {work.achievements.map((ach, i) => (
+                   <Text key={i} style={{ fontSize: 10 }}>• {ach}</Text>
+                 ))}
+               </View>
+            )}
           </View>
         ))}
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Skills</Text>
+        <Text style={styles.sectionTitle}>スキル (Skills)</Text>
         <Text>{data.skills.join(', ')}</Text>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Self Promotion</Text>
+        <Text style={styles.sectionTitle}>自己PR (Self Promotion)</Text>
         <Text>{data.selfPromotion}</Text>
       </View>
     </Page>
