@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -21,7 +23,38 @@ import { ResumePDF } from "@/components/pdf/ResumePDF";
 
 export default function Home() {
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [generatedData, setGeneratedData] = useState<ResumeData | null>(null);
+  const [resumeText, setResumeText] = useState("");
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await fetch("/api/extract-text", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        setResumeText(data.text);
+        alert("Resume uploaded and text extracted successfully!");
+      } else {
+        alert("Failed to extract text from PDF");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Error uploading file");
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const handleGenerate = async () => {
     setIsGenerating(true);
@@ -39,7 +72,8 @@ export default function Home() {
           userProfile: {
              firstName: "Taro",
              lastName: "Yamada"
-          }
+          },
+          currentResumeText: resumeText // 抽出したテキストを送信
         }),
       });
 
@@ -131,9 +165,21 @@ export default function Home() {
               </CardHeader>
               <CardContent>
                  <div className="space-y-4">
-                    <div className="border-2 border-dashed border-blue-200 bg-blue-50 rounded-lg p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-blue-100 transition-colors">
-                      <FileText className="h-10 w-10 text-blue-600 mb-3" />
-                      <h3 className="font-semibold text-blue-900">Upload English Resume (PDF)</h3>
+                    <div className="border-2 border-dashed border-blue-200 bg-blue-50 rounded-lg p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-blue-100 transition-colors relative">
+                      <input 
+                        type="file" 
+                        accept=".pdf" 
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        onChange={handleFileUpload}
+                      />
+                      {isUploading ? (
+                        <Loader2 className="h-10 w-10 text-blue-600 animate-spin mb-3" />
+                      ) : (
+                        <FileText className="h-10 w-10 text-blue-600 mb-3" />
+                      )}
+                      <h3 className="font-semibold text-blue-900">
+                        {isUploading ? "Processing..." : "Upload English Resume (PDF)"}
+                      </h3>
                       <p className="text-sm text-blue-700 mt-1">AI will analyze and translate your skills</p>
                     </div>
                     
@@ -145,7 +191,13 @@ export default function Home() {
 
                     <div className="space-y-2">
                       <Label htmlFor="summary">Professional Summary / Skills</Label>
-                      <Textarea id="summary" placeholder="I have 5 years of experience in..." className="min-h-[150px]" />
+                      <Textarea 
+                        id="summary" 
+                        placeholder="I have 5 years of experience in..." 
+                        className="min-h-[150px]" 
+                        value={resumeText}
+                        onChange={(e) => setResumeText(e.target.value)}
+                      />
                     </div>
                  </div>
               </CardContent>
