@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import pdfParse from "pdf-parse";
+// pdf-parse はCommonJS形式なので、import * as ... または require を使う必要がある場合がある
+// ただしNext.js環境下での型定義の問題を回避するため、requireを使用するパターンに変更
+const pdfParse = require("pdf-parse");
 
 export async function POST(req: NextRequest) {
   try {
@@ -33,4 +35,3 @@ export async function POST(req: NextRequest) {
     );
   }
 }
-
