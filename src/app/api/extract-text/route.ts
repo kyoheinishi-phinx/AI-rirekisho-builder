@@ -19,7 +19,8 @@ export async function POST(req: NextRequest) {
 
     // PDFParserを使ってテキスト抽出 (非同期処理)
     const text = await new Promise<string>((resolve, reject) => {
-      const pdfParser = new PDFParser(null, 1); // 1 = text only
+      // コンストラクタの引数を修正: 第二引数は boolean (enableRawOutput)
+      const pdfParser = new PDFParser(null, true); 
 
       pdfParser.on("pdfParser_dataError", (errData: any) =>
         reject(errData.parserError)
