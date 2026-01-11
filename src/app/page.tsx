@@ -41,10 +41,11 @@ export default function Home() {
       setProgress(0);
       interval = setInterval(() => {
         setProgress((prev) => {
-          if (prev >= 90) return prev; // 90%で止める（完了待ち）
-          return prev + 5;
+          // 90%まで進む速度を調整 (500msごとに5% -> 1000msごとに2%程度に減速してじっくり見せる)
+          if (prev >= 90) return prev; 
+          return prev + 2; 
         });
-      }, 500);
+      }, 800); // 間隔を広げてゆっくりにする
     } else {
       setProgress(0);
     }

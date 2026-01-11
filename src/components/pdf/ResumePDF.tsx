@@ -3,13 +3,24 @@ import { Page, Text, View, Document, StyleSheet, Image, Font } from '@react-pdf/
 import { ResumeData } from '@/types/resume';
 
 // 日本語フォントの登録
-// Vercel環境等でパス解決エラーを防ぐため、可能な限り絶対パスを解決して渡す
+// Vercel環境では、ルート相対パス '/fonts/...' は、@react-pdf/renderer のサーバーサイド実行時にファイルシステムパスとして解決できない場合があります。
+// 確実な方法は、http(s) URLとしてフルパスを指定することですが、サーバーサイドレンダリング(SSR)中はwindowオブジェクトがありません。
+// そこで、環境変数やデフォルトのホスト名を使用してURLを構築します。
+
 const getFontSrc = (filename: string) => {
+  // ブラウザ環境
   if (typeof window !== 'undefined') {
     return `${window.location.origin}/fonts/${filename}`;
   }
-  // サーバーサイド/ビルド時はとりあえずそのまま返す（実際にレンダリングされるのはクライアントサイド）
-  return `/fonts/${filename}`;
+  
+  // サーバーサイド (Vercelなど)
+  // VERCEL_URL環境変数があればそれを使用 (httpsプロトコルを付与)
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}/fonts/${filename}`;
+  }
+  
+  // ローカル開発サーバーなど
+  return `http://localhost:3000/fonts/${filename}`;
 };
 
 Font.register({
