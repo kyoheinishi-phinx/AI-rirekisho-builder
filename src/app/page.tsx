@@ -377,7 +377,7 @@ export default function Home() {
                             {({ blob, url, loading, error }) => (
                                <Button 
                                  className="w-full h-12 bg-green-600 hover:bg-green-700 text-white shadow-md shadow-green-200"
-                                 disabled={loading || error}
+                                 disabled={loading || !!error} // errorが存在する場合はtrue、そうでなければfalseにする (boolean型への変換)
                                >
                                   {loading ? "Preparing PDF..." : <><Download className="mr-2 h-4 w-4"/> Download PDF</>}
                                </Button>
