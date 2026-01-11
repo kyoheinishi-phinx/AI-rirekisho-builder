@@ -440,6 +440,16 @@ export default function Home() {
                                </ul>
                              </div>
                            )}
+                           
+                           {/* 志望動機に関する注意書き (常に表示) */}
+                           <div className="bg-blue-50 border border-blue-200 rounded-md p-4 text-sm text-blue-800 mt-2 text-left">
+                              <p className="font-bold mb-1 flex items-center"><span className="text-xl mr-1">💡</span> AI Note:</p>
+                              <p className="text-xs opacity-90">
+                                The <strong>"Motivation (志望動機)"</strong> section is an AI-generated draft based on your profile. 
+                                Please customize it for each company you apply to. 
+                                <br/>Other remarks can be added to the "Personal Requests (本人希望記入欄)" section.
+                              </p>
+                           </div>
                           
                           <Button 
                             variant="ghost" 
