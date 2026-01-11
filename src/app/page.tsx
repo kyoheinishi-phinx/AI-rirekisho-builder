@@ -132,11 +132,12 @@ export default function Home() {
         };
         setGeneratedData(finalData);
       } else {
-        alert("Failed to generate resume");
+        // エラー詳細を表示するように変更
+        alert(`Failed to generate resume: ${data.details || "Unknown error"}`);
       }
     } catch (error) {
       console.error(error);
-      alert("An error occurred");
+      alert(`An error occurred: ${error}`);
     } finally {
       setIsGenerating(false);
     }

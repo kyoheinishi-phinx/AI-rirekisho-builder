@@ -7,17 +7,24 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const requestData: GenerateResumeRequest = body;
 
-    // AIサービス (現在はMock) を取得して実行
+    // AIサービスを取得
     const aiService = getAIService();
+    
+    // 生成処理実行
     const resumeData = await aiService.generateResume(requestData);
 
     return NextResponse.json({ success: true, data: resumeData });
-  } catch (error) {
+  } catch (error: any) { // errorをany型として扱うか、適切な型ガードを入れる
     console.error("Error generating resume:", error);
+    
+    // エラーの詳細をクライアントに返すように修正
     return NextResponse.json(
-      { success: false, error: "Failed to generate resume" },
+      { 
+        success: false, 
+        error: "Failed to generate resume",
+        details: error?.message || String(error) // エラーメッセージを含める
+      },
       { status: 500 }
     );
   }
 }
-
