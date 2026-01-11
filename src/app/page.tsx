@@ -9,31 +9,124 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Upload, FileText, CheckCircle, Loader2, Download, X, Sparkles, User, ChevronRight } from "lucide-react";
 import { ResumeData } from "@/types/resume";
-// import dynamic from "next/dynamic"; // 削除
-
 import { saveAs } from "file-saver";
 import { generateResumeZip, checkMissingItems, MissingItems } from "@/lib/word-generator";
 
-// ...
-
 export default function Home() {
-  // ... (省略)
-  
-  const handleGenerate = async () => {
-    setIsGenerating(true);
-    setGeneratedData(null);
-    setMissingItems(null);
-    
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [generatedData, setGeneratedData] = useState<ResumeData | null>(null);
+  const [resumeText, setResumeText] = useState("");
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [progress, setProgress] = useState(0);
+  const [missingItems, setMissingItems] = useState<MissingItems | null>(null);
+
+  const pdfInputRef = useRef<HTMLInputElement>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
+
+  // ZIPダウンロードハンドラー
+  const handleDownloadZip = async () => {
+    if (!generatedData) return;
     try {
-      const response = await fetch("/api/generate-resume", {
-        // ... (省略)
+      const { blob } = await generateResumeZip(generatedData);
+      saveAs(blob, `Resume_Set_${generatedData.basicInfo.firstName}_${generatedData.basicInfo.lastName}.zip`);
+    } catch (e) {
+      console.error("ZIP generation error:", e);
+      alert("Failed to generate resume ZIP file.");
+    }
+  };
+
+  // プログレスバーのアニメーション制御
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isGenerating) {
+      setProgress(0);
+      interval = setInterval(() => {
+        setProgress((prev) => {
+          if (prev >= 90) return prev;
+          return prev + 2;
+        });
+      }, 800);
+    } else {
+      setProgress(0);
+    }
+    return () => clearInterval(interval);
+  }, [isGenerating]);
+
+  // ファイルアップロードハンドラー
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/extract-text", {
+        method: "POST",
+        body: formData,
       });
 
       const data = await response.json();
       if (data.success) {
-        // 完了したら100%にする
+        setResumeText(data.text);
+      } else {
+        alert("Failed to extract text from PDF");
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+      alert("Error uploading file");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  // 写真アップロードハンドラー
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPhotoPreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // 写真削除ハンドラー
+  const handleRemovePhoto = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setPhotoPreview(null);
+    if (photoInputRef.current) {
+      photoInputRef.current.value = "";
+    }
+  };
+
+  // 履歴書生成ハンドラー
+  const handleGenerate = async () => {
+    setIsGenerating(true);
+    setGeneratedData(null);
+    setMissingItems(null);
+
+    try {
+      const response = await fetch("/api/generate-resume", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userProfile: {
+            firstName: "Taro", // Placeholder - could be from input if we had separate fields
+            lastName: "Yamada", // Placeholder
+            photoBase64: photoPreview
+          },
+          currentResumeText: resumeText
+        }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
         setProgress(100);
-        
+
         const finalData = {
           ...data.data,
           basicInfo: {
@@ -43,11 +136,10 @@ export default function Home() {
         };
         setGeneratedData(finalData);
 
-        // 生成完了と同時に不足項目をチェックして表示 (Word生成を待たない)
+        // 生成完了と同時に不足項目をチェックして表示
         const missing = checkMissingItems(finalData);
         setMissingItems(missing);
 
-        // Scroll to result
         setTimeout(() => {
           document.getElementById('result-section')?.scrollIntoView({ behavior: 'smooth' });
         }, 500);
@@ -55,13 +147,12 @@ export default function Home() {
         alert(`Failed to generate resume: ${data.details || "Unknown error"}`);
       }
     } catch (error) {
-      // ...
+      console.error(error);
+      alert(`An error occurred: ${error}`);
     } finally {
       setIsGenerating(false);
     }
   };
-  // ...
-}
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
@@ -78,7 +169,6 @@ export default function Home() {
           </div>
           <nav className="flex items-center gap-4">
              <a href="#" className="text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors">How it works</a>
-             {/* ユーザー指摘により削除: 機能しないLanguageボタン */}
           </nav>
         </div>
       </header>
