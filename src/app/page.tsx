@@ -12,7 +12,7 @@ import { ResumeData } from "@/types/resume";
 import dynamic from "next/dynamic";
 
 import { saveAs } from "file-saver";
-import { generateWordDocument } from "@/lib/word-generator";
+import { generateResumeZip, MissingItems } from "@/lib/word-generator";
 
 // Client-side only PDF link
 const PDFDownloadLink = dynamic(
@@ -30,6 +30,7 @@ export default function Home() {
   const [generatedData, setGeneratedData] = useState<ResumeData | null>(null);
   const [resumeText, setResumeText] = useState("");
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [missingItems, setMissingItems] = useState<MissingItems | null>(null);
   
   // Progress bar state
   const [progress, setProgress] = useState(0);
@@ -37,15 +38,16 @@ export default function Home() {
   const pdfInputRef = useRef<HTMLInputElement>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
 
-  // Wordダウンロードハンドラー
-  const handleDownloadWord = async () => {
+  // Word(ZIP)ダウンロードハンドラー
+  const handleDownloadZip = async () => {
     if (!generatedData) return;
     try {
-      const blob = await generateWordDocument(generatedData);
-      saveAs(blob, `Resume_${generatedData.basicInfo.firstName}_${generatedData.basicInfo.lastName}.docx`);
+      const { blob, missingItems } = await generateResumeZip(generatedData);
+      setMissingItems(missingItems); // 不足項目を表示
+      saveAs(blob, `Resume_Set_${generatedData.basicInfo.firstName}_${generatedData.basicInfo.lastName}.zip`);
     } catch (e) {
-      console.error("Word generation error:", e);
-      alert("Failed to generate Word document.");
+      console.error("Word/Zip generation error:", e);
+      alert("Failed to generate documents.");
     }
   };
 
@@ -421,47 +423,36 @@ export default function Home() {
                         </div>
                         
                         <div className="flex flex-col gap-3">
-                          {/* Word Download Button (Primary) */}
+                          {/* Main ZIP Download Button */}
                           <Button 
-                             className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-200"
-                             onClick={handleDownloadWord}
+                             className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-200 text-lg"
+                             onClick={handleDownloadZip}
                            >
-                              <FileText className="mr-2 h-4 w-4"/> Download Word (.docx)
+                              <FileText className="mr-2 h-5 w-5"/> Download Resume Set (.zip)
                            </Button>
+                           <p className="text-xs text-center text-slate-500 mb-2">
+                             Includes "Rirekisho.docx" and "ShokumuKeirekisho.docx"
+                           </p>
 
-                          {/* PDF Download Button (Secondary - as backup) */}
-                          {/* Keyを追加してデータ更新時に再マウントさせる */}
-                          <PDFDownloadLink
-                            key={JSON.stringify(generatedData)} 
-                            document={<ResumePDF data={generatedData} />}
-                            fileName="japanese_resume.pdf"
-                          >
-                            {/* @ts-ignore */}
-                            {({ blob, url, loading, error }) => {
-                               if (error) console.error("PDF Render Error:", error);
-                               return (
-                                 <Button 
-                                   variant="outline"
-                                   className="w-full h-12 text-slate-600 border-slate-300 hover:bg-slate-50"
-                                   disabled={loading || !!error} 
-                                 >
-                                    {loading ? (
-                                      <>
-                                         <Loader2 className="mr-2 h-4 w-4 animate-spin"/> PDF (Loading...)
-                                      </>
-                                    ) : error ? (
-                                      `PDF Error: ${error.message || "Failed"}`
-                                    ) : (
-                                      <><Download className="mr-2 h-4 w-4"/> Download PDF (Backup)</>
-                                    )}
-                                 </Button>
-                               );
-                            }}
-                          </PDFDownloadLink>
+                           {/* 不足項目の警告表示 */}
+                           {missingItems && (Object.values(missingItems).some(v => v)) && (
+                             <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4 text-sm text-yellow-800 mt-2 text-left">
+                               <p className="font-bold mb-1 flex items-center"><span className="text-xl mr-1">⚠️</span> Missing Information:</p>
+                               <p className="mb-2 text-xs opacity-90">Please fill in these blanks in the Word file:</p>
+                               <ul className="list-disc list-inside space-y-1 ml-1 text-xs font-medium">
+                                 {missingItems.birthDate && <li>Birth Date (生年月日)</li>}
+                                 {missingItems.address && <li>Current Address (現住所)</li>}
+                                 {missingItems.phone && <li>Phone Number (電話番号)</li>}
+                               </ul>
+                             </div>
+                           )}
                           
                           <Button 
                             variant="ghost" 
-                            onClick={() => setGeneratedData(null)} 
+                            onClick={() => {
+                              setGeneratedData(null);
+                              setMissingItems(null);
+                            }} 
                             className="w-full text-slate-500 hover:text-slate-700"
                           >
                              Create Another
