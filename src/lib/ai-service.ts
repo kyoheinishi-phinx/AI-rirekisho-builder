@@ -21,11 +21,9 @@ export class GeminiService implements AIService {
   async generateResume(request: GenerateResumeRequest): Promise<ResumeData> {
     console.log("Gemini generating resume...");
 
-    // モデル名を修正: ユーザー指定の "gemini-1.5-pro" (Gemini 1.5 Pro) を使用
-    // ※ "gemini-3-pro" は現時点で一般公開APIとして存在しないため、
-    //   最新かつ最高性能の Gemini 1.5 Pro を指定します。
-    //   もし将来的に "gemini-3-pro" がリリースされたら文字列を変更してください。
-    const model = this.genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+    // モデル名を修正: 最新の Gemini 3 Pro プレビュー版を使用
+    // 参照: https://ai.google.dev/gemini-api/docs/models?hl=ja
+    const model = this.genAI.getGenerativeModel({ model: "gemini-3-pro-preview" });
 
     // 写真データはAI入力には不要かつ巨大すぎるため除外する
     const { photoBase64, ...userProfileWithoutPhoto } = request.userProfile || {};
