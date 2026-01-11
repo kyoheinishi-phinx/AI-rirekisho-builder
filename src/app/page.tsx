@@ -313,23 +313,36 @@ export default function Home() {
                 <CardHeader>
                   <CardTitle className="text-green-800 flex justify-between items-center">
                     <span>Success! Resume Generated</span>
-                    <PDFDownloadLink
-                      document={<ResumePDF data={generatedData} />}
-                      fileName="japanese_resume.pdf"
-                    >
-                      {/* @ts-ignore - PDFDownloadLink children type mismatch workaround */}
-                      {({ blob, url, loading, error }) => (
-                        <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white">
-                          {loading ? (
-                            "Preparing PDF..."
-                          ) : (
-                            <>
-                              <Download className="mr-2 h-4 w-4" /> Download PDF
-                            </>
-                          )}
-                        </Button>
-                      )}
-                    </PDFDownloadLink>
+                    {/* PDFDownloadLinkの内部エラーを回避するため、生成完了直後はボタンを無効化するか、データがある場合のみレンダリングする制御を強化 */}
+                    {generatedData && (
+                      <PDFDownloadLink
+                        document={<ResumePDF data={generatedData} />}
+                        fileName="japanese_resume.pdf"
+                      >
+                        {/* @ts-ignore */}
+                        {({ blob, url, loading, error }) => {
+                          if (error) {
+                            console.error("PDF generation error:", error);
+                            return <Button disabled variant="destructive">Error generating PDF</Button>;
+                          }
+                          return (
+                            <Button 
+                              size="sm" 
+                              className="bg-green-600 hover:bg-green-700 text-white"
+                              disabled={loading}
+                            >
+                              {loading ? (
+                                "Preparing PDF..."
+                              ) : (
+                                <>
+                                  <Download className="mr-2 h-4 w-4" /> Download PDF
+                                </>
+                              )}
+                            </Button>
+                          );
+                        }}
+                      </PDFDownloadLink>
+                    )}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
