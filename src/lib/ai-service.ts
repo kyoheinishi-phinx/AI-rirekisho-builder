@@ -21,7 +21,10 @@ export class GeminiService implements AIService {
   async generateResume(request: GenerateResumeRequest): Promise<ResumeData> {
     console.log("Gemini generating resume...");
 
-    const model = this.genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    // モデル名を修正: "gemini-pro" は安定版として広く利用可能
+    // もしFlashを使いたい場合は "gemini-1.5-flash-latest" 等を試すが、
+    // まずは確実に動く "gemini-pro" を採用する
+    const model = this.genAI.getGenerativeModel({ model: "gemini-pro" });
 
     // 写真データはAI入力には不要かつ巨大すぎるため除外する
     const { photoBase64, ...userProfileWithoutPhoto } = request.userProfile || {};
