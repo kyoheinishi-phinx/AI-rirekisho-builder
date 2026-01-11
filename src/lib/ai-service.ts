@@ -23,6 +23,9 @@ export class GeminiService implements AIService {
 
     const model = this.genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
+    // 写真データはAI入力には不要かつ巨大すぎるため除外する
+    const { photoBase64, ...userProfileWithoutPhoto } = request.userProfile || {};
+
     const prompt = `
     You are an expert Japanese resume writer.
     Please convert the following user information into a structured Japanese Resume (Rirekisho) and Curriculum Vitae (Shokumu Keirekisho) data.
@@ -57,7 +60,7 @@ export class GeminiService implements AIService {
     }
 
     INPUT DATA:
-    User Profile: ${JSON.stringify(request.userProfile)}
+    User Profile: ${JSON.stringify(userProfileWithoutPhoto)}
     Resume Text (OCR): ${request.currentResumeText || "None"}
     
     IMPORTANT:
