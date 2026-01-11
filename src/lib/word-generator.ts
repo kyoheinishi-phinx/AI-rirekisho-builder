@@ -1,7 +1,6 @@
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Table, TableRow, TableCell, WidthType, BorderStyle, ImageRun, SectionType, HeightRule, VerticalAlign } from "docx";
 import { ResumeData } from "@/types/resume";
 import JSZip from "jszip";
-import imageSize from "image-size";
 
 // 不足項目チェック用の型
 export interface MissingItems {
@@ -20,7 +19,10 @@ const BORDER_STYLE = {
 
 // Base64画像をBufferに変換するヘルパー
 const base64ToBuffer = (base64: string): Uint8Array => {
-  const binaryString = atob(base64.split(',')[1]);
+  // data:image/png;base64, のようなプレフィックスがある場合に対応
+  const parts = base64.split(',');
+  const data = parts.length > 1 ? parts[1] : parts[0];
+  const binaryString = atob(data);
   const len = binaryString.length;
   const bytes = new Uint8Array(len);
   for (let i = 0; i < len; i++) {
@@ -29,11 +31,26 @@ const base64ToBuffer = (base64: string): Uint8Array => {
   return bytes;
 };
 
+// ブラウザ環境で画像の寸法を取得するヘルパー
+const getImageDimensions = (base64: string): Promise<{ width: number; height: number } | null> => {
+  return new Promise((resolve) => {
+    if (typeof window === 'undefined') {
+      resolve(null);
+      return;
+    }
+    const img = new Image();
+    img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
+    img.onerror = () => resolve(null);
+    // プレフィックスがない場合は補完 (ただし通常はついているはず)
+    img.src = base64.startsWith('data:') ? base64 : `data:image/jpeg;base64,${base64}`;
+  });
+};
+
 /**
  * 履歴書 (Rirekisho) Wordドキュメント生成
  * JIS規格 (見開き2ページ) 完全準拠レイアウト
  */
-const createRirekishoDoc = (data: ResumeData): Document => {
+const createRirekishoDoc = async (data: ResumeData): Promise<Document> => {
   // 写真データの準備 (縦横比を維持して枠内に収める)
   let photoRun: ImageRun | Paragraph = new Paragraph({ text: "写\n真\n(3x4cm)", alignment: AlignmentType.CENTER });
   
@@ -41,25 +58,32 @@ const createRirekishoDoc = (data: ResumeData): Document => {
     try {
       const imgBuffer = base64ToBuffer(data.basicInfo.photoBase64);
       
-      // 画像サイズを取得して縦横比を計算
-      const dimensions = imageSize(Buffer.from(imgBuffer));
+      // ブラウザ標準機能で画像サイズを取得
+      const dimensions = await getImageDimensions(data.basicInfo.photoBase64);
+      
       let targetWidth = 113; // 3cm @ 96dpi approx
       let targetHeight = 151; // 4cm @ 96dpi approx
       
       if (dimensions && dimensions.width && dimensions.height) {
-        // アスペクト比を維持して枠内に収めるロジック
+        // アスペクト比を維持して枠内に収めるロジック (Contain)
         const widthRatio = targetWidth / dimensions.width;
         const heightRatio = targetHeight / dimensions.height;
         const scale = Math.min(widthRatio, heightRatio);
         
         targetWidth = Math.round(dimensions.width * scale);
         targetHeight = Math.round(dimensions.height * scale);
+      } else {
+         // 寸法が取得できなかった場合 (サーバーサイド等)、デフォルトサイズにするが、
+         // 3:4でない画像を無理やり3:4にすると歪む。
+         // ここはどうしようもないので、デフォルト値を使うしかないが、
+         // ブラウザ実行前提ならdimensionsは取れるはず。
+         console.warn("Could not get image dimensions, using default 3x4cm");
       }
 
       photoRun = new ImageRun({
         data: imgBuffer,
         transformation: { width: targetWidth, height: targetHeight }, 
-        type: "jpg", 
+        type: "jpg", // 拡張子がpngでもjpgとして扱ってもdocxは表示できることが多いが、厳密には元データによる
       });
     } catch (e) {
       console.warn("Failed to process photo image", e);
@@ -468,7 +492,7 @@ const createCvDoc = (data: ResumeData): Document => {
  * ZIP生成関数
  */
 export const generateResumeZip = async (data: ResumeData): Promise<{ blob: Blob, missingItems: MissingItems }> => {
-  const rirekishoDoc = createRirekishoDoc(data);
+  const rirekishoDoc = await createRirekishoDoc(data); // awaitを追加
   const cvDoc = createCvDoc(data);
   
   const rirekishoBlob = await Packer.toBlob(rirekishoDoc);
