@@ -9,20 +9,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Upload, FileText, CheckCircle, Loader2, Download, X, Sparkles, User, ChevronRight } from "lucide-react";
 import { ResumeData } from "@/types/resume";
-import dynamic from "next/dynamic";
+// import dynamic from "next/dynamic"; // 削除
 
 import { saveAs } from "file-saver";
 import { generateResumeZip, MissingItems } from "@/lib/word-generator";
 
-// Client-side only PDF link
-const PDFDownloadLink = dynamic(
-  () => import("@react-pdf/renderer").then((mod) => mod.PDFDownloadLink),
-  {
-    ssr: false,
-    loading: () => <span className="flex items-center text-sm text-gray-500"><Loader2 className="w-3 h-3 mr-2 animate-spin"/> Loading PDF Engine...</span>,
-  }
-);
-import { ResumePDF } from "@/components/pdf/ResumePDF";
+// PDF関連のインポートを削除
+// const PDFDownloadLink = dynamic(...) 
+// import { ResumePDF } from "@/components/pdf/ResumePDF";
 
 export default function Home() {
   const [isGenerating, setIsGenerating] = useState(false);
