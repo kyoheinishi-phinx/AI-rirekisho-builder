@@ -305,16 +305,16 @@ export default function Home() {
             <div className="lg:col-span-7 space-y-8">
               <div className="flex items-center gap-4 mb-2">
                 <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-lg">1</div>
-                <h3 className="text-2xl font-bold text-slate-900">Upload & Profile</h3>
+                <h3 className="text-2xl font-bold text-slate-900">Input Your Details</h3>
               </div>
 
-              {/* Photo Upload Card */}
+              {/* Basic Information Card */}
               <motion.div whileHover={{ scale: 1.01 }} transition={{ duration: 0.2 }}>
                 <Card className="border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-300">
                   <CardHeader className="bg-white border-b border-slate-100 pb-4">
                     <CardTitle className="text-lg flex items-center gap-2">
                       <User className="w-5 h-5 text-indigo-600" />
-                      Profile Photo
+                      Basic Information
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="pt-6 bg-white">
@@ -409,8 +409,8 @@ export default function Home() {
                          <span className="text-xs text-slate-400 uppercase tracking-widest bg-white px-2 relative z-10">or enter manually</span>
                          <div className="border-t border-slate-100 -mt-2"></div>
                          <Textarea 
-                           placeholder="Paste your resume text or type your summary here..." 
-                           className="mt-4 min-h-[120px] bg-slate-50 border-slate-200 focus:border-indigo-300 transition-colors"
+                           placeholder={"Paste your full resume text here, or describe your background in detail including:\n- Education (University, Degree, Year)\n- Work Experience (Company, Role, Duration, Key Achievements)\n- Skills & Certifications\n- Languages"}
+                           className="mt-4 min-h-[160px] bg-slate-50 border-slate-200 focus:border-indigo-300 transition-colors"
                            value={resumeText}
                            onChange={(e) => setResumeText(e.target.value)}
                          />
@@ -459,7 +459,7 @@ export default function Home() {
             <div className="lg:col-span-5 space-y-6">
               <div className="flex items-center gap-4 mb-2">
                 <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold text-lg">2</div>
-                <h3 className="text-2xl font-bold text-slate-900">Preview & Download</h3>
+                <h3 className="text-2xl font-bold text-slate-900">Download Documents</h3>
               </div>
 
               <AnimatePresence mode="wait">
