@@ -1,6 +1,7 @@
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Table, TableRow, TableCell, WidthType, BorderStyle, ImageRun, SectionType, HeightRule, VerticalAlign } from "docx";
 import { ResumeData } from "@/types/resume";
 import JSZip from "jszip";
+import imageSize from "image-size";
 
 // 不足項目チェック用の型
 export interface MissingItems {
@@ -33,18 +34,31 @@ const base64ToBuffer = (base64: string): Uint8Array => {
  * JIS規格 (見開き2ページ) 完全準拠レイアウト
  */
 const createRirekishoDoc = (data: ResumeData): Document => {
-  // 写真データの準備 (縦横比を考慮した簡易サイズ調整)
+  // 写真データの準備 (縦横比を維持して枠内に収める)
   let photoRun: ImageRun | Paragraph = new Paragraph({ text: "写\n真\n(3x4cm)", alignment: AlignmentType.CENTER });
   
   if (data.basicInfo.photoBase64) {
     try {
       const imgBuffer = base64ToBuffer(data.basicInfo.photoBase64);
-      // メモ: 本当は画像の実サイズを取得して比率計算すべきだが、
-      // ここでは縦長写真を想定して、枠(3cm x 4cm)に収まるように少し小さめに設定
-      // width: 30mm = 113px, height: 40mm = 151px
+      
+      // 画像サイズを取得して縦横比を計算
+      const dimensions = imageSize(Buffer.from(imgBuffer));
+      let targetWidth = 113; // 3cm @ 96dpi approx
+      let targetHeight = 151; // 4cm @ 96dpi approx
+      
+      if (dimensions && dimensions.width && dimensions.height) {
+        // アスペクト比を維持して枠内に収めるロジック
+        const widthRatio = targetWidth / dimensions.width;
+        const heightRatio = targetHeight / dimensions.height;
+        const scale = Math.min(widthRatio, heightRatio);
+        
+        targetWidth = Math.round(dimensions.width * scale);
+        targetHeight = Math.round(dimensions.height * scale);
+      }
+
       photoRun = new ImageRun({
         data: imgBuffer,
-        transformation: { width: 113, height: 151 }, 
+        transformation: { width: targetWidth, height: targetHeight }, 
         type: "jpg", 
       });
     } catch (e) {
@@ -126,15 +140,12 @@ const createRirekishoDoc = (data: ResumeData): Document => {
   });
 
   // テーブル2: 学歴・職歴 (1ページ目を埋める量)
-  // JIS規格では、学歴・職歴欄は1ページ目の半分以上を占め、足りなければ2ページ目に続く。
-  // 今回は簡易的に、学歴と職歴を全て1ページ目のテーブル定義に入れるが、行数が多い場合はWord側で自動的に改ページされる挙動を利用する。
-  
   const historyRows = [
     new TableRow({
       children: [
-        new TableCell({ children: [new Paragraph({ text: "年", alignment: AlignmentType.CENTER })], width: { size: 10, type: WidthType.PERCENTAGE }, borders: BORDER_STYLE }),
-        new TableCell({ children: [new Paragraph({ text: "月", alignment: AlignmentType.CENTER })], width: { size: 5, type: WidthType.PERCENTAGE }, borders: BORDER_STYLE }),
-        new TableCell({ children: [new Paragraph({ text: "学歴・職歴", alignment: AlignmentType.CENTER })], width: { size: 85, type: WidthType.PERCENTAGE }, borders: BORDER_STYLE }),
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "年", bold: true })], alignment: AlignmentType.CENTER })], width: { size: 10, type: WidthType.PERCENTAGE }, borders: BORDER_STYLE }),
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "月", bold: true })], alignment: AlignmentType.CENTER })], width: { size: 5, type: WidthType.PERCENTAGE }, borders: BORDER_STYLE }),
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "学歴・職歴", bold: true })], alignment: AlignmentType.CENTER })], width: { size: 85, type: WidthType.PERCENTAGE }, borders: BORDER_STYLE }),
       ],
     }),
     // 学歴
@@ -142,7 +153,7 @@ const createRirekishoDoc = (data: ResumeData): Document => {
       children: [
         new TableCell({ children: [], borders: BORDER_STYLE }),
         new TableCell({ children: [], borders: BORDER_STYLE }),
-        new TableCell({ children: [new Paragraph({ text: "学　歴", alignment: AlignmentType.CENTER })], borders: BORDER_STYLE }),
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "学　歴", bold: true })], alignment: AlignmentType.CENTER })], borders: BORDER_STYLE }),
       ],
     }),
     ...data.education.map(edu => {
@@ -171,7 +182,7 @@ const createRirekishoDoc = (data: ResumeData): Document => {
       children: [
         new TableCell({ children: [], borders: BORDER_STYLE }),
         new TableCell({ children: [], borders: BORDER_STYLE }),
-        new TableCell({ children: [new Paragraph({ text: "職　歴", alignment: AlignmentType.CENTER })], borders: BORDER_STYLE }),
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "職　歴", bold: true })], alignment: AlignmentType.CENTER })], borders: BORDER_STYLE }),
       ],
     }),
     ...data.workExperience.flatMap(work => {
@@ -232,9 +243,9 @@ const createRirekishoDoc = (data: ResumeData): Document => {
   const certRows = [
     new TableRow({
       children: [
-        new TableCell({ children: [new Paragraph({ text: "年", alignment: AlignmentType.CENTER })], width: { size: 10, type: WidthType.PERCENTAGE }, borders: BORDER_STYLE }),
-        new TableCell({ children: [new Paragraph({ text: "月", alignment: AlignmentType.CENTER })], width: { size: 5, type: WidthType.PERCENTAGE }, borders: BORDER_STYLE }),
-        new TableCell({ children: [new Paragraph({ text: "免許・資格", alignment: AlignmentType.CENTER })], width: { size: 85, type: WidthType.PERCENTAGE }, borders: BORDER_STYLE }),
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "年", bold: true })], alignment: AlignmentType.CENTER })], width: { size: 10, type: WidthType.PERCENTAGE }, borders: BORDER_STYLE }),
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "月", bold: true })], alignment: AlignmentType.CENTER })], width: { size: 5, type: WidthType.PERCENTAGE }, borders: BORDER_STYLE }),
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "免許・資格", bold: true })], alignment: AlignmentType.CENTER })], width: { size: 85, type: WidthType.PERCENTAGE }, borders: BORDER_STYLE }),
       ],
     }),
     ...data.certifications.map(cert => new TableRow({
@@ -274,7 +285,7 @@ const createRirekishoDoc = (data: ResumeData): Document => {
         children: [
           new TableCell({
             children: [
-              new Paragraph({ text: "志望の動機・特技・好きな学科・アピールポイントなど", spacing: { before: 50, after: 50 } }),
+              new Paragraph({ children: [new TextRun({ text: "志望の動機・特技・好きな学科・アピールポイントなど", bold: true })], spacing: { before: 50, after: 50 } }),
               // 注記削除 (Web画面でのみ案内)
               new Paragraph({ text: data.selfPromotion, spacing: { after: 100 } }),
               new Paragraph({ text: "", spacing: { after: 1200 } }) // 余白確保
@@ -294,7 +305,7 @@ const createRirekishoDoc = (data: ResumeData): Document => {
         children: [
           new TableCell({
             children: [
-              new Paragraph({ text: "本人希望記入欄 (給料・職種・勤務時間・勤務地・その他)", spacing: { before: 50, after: 50 } }),
+              new Paragraph({ children: [new TextRun({ text: "本人希望記入欄 (給料・職種・勤務時間・勤務地・その他)", bold: true })], spacing: { before: 50, after: 50 } }),
               new Paragraph({ text: "貴社の規定に従います。", spacing: { after: 100 } }),
               new Paragraph({ text: "", spacing: { after: 1200 } }) // 余白確保
             ]
