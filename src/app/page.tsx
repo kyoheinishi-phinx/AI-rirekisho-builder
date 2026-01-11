@@ -11,6 +11,9 @@ import { Upload, FileText, CheckCircle, Loader2, Download, X, Sparkles, User, Ch
 import { ResumeData } from "@/types/resume";
 import dynamic from "next/dynamic";
 
+import { saveAs } from "file-saver";
+import { generateWordDocument } from "@/lib/word-generator";
+
 // Client-side only PDF link
 const PDFDownloadLink = dynamic(
   () => import("@react-pdf/renderer").then((mod) => mod.PDFDownloadLink),
@@ -33,6 +36,18 @@ export default function Home() {
 
   const pdfInputRef = useRef<HTMLInputElement>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
+
+  // Wordダウンロードハンドラー
+  const handleDownloadWord = async () => {
+    if (!generatedData) return;
+    try {
+      const blob = await generateWordDocument(generatedData);
+      saveAs(blob, `Resume_${generatedData.basicInfo.firstName}_${generatedData.basicInfo.lastName}.docx`);
+    } catch (e) {
+      console.error("Word generation error:", e);
+      alert("Failed to generate Word document.");
+    }
+  };
 
   // プログレスバーのアニメーション制御
   useEffect(() => {
@@ -406,6 +421,15 @@ export default function Home() {
                         </div>
                         
                         <div className="flex flex-col gap-3">
+                          {/* Word Download Button (Primary) */}
+                          <Button 
+                             className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-200"
+                             onClick={handleDownloadWord}
+                           >
+                              <FileText className="mr-2 h-4 w-4"/> Download Word (.docx)
+                           </Button>
+
+                          {/* PDF Download Button (Secondary - as backup) */}
                           {/* Keyを追加してデータ更新時に再マウントさせる */}
                           <PDFDownloadLink
                             key={JSON.stringify(generatedData)} 
@@ -417,17 +441,18 @@ export default function Home() {
                                if (error) console.error("PDF Render Error:", error);
                                return (
                                  <Button 
-                                   className="w-full h-12 bg-green-600 hover:bg-green-700 text-white shadow-md shadow-green-200"
+                                   variant="outline"
+                                   className="w-full h-12 text-slate-600 border-slate-300 hover:bg-slate-50"
                                    disabled={loading || !!error} 
                                  >
                                     {loading ? (
                                       <>
-                                         <Loader2 className="mr-2 h-4 w-4 animate-spin"/> Preparing PDF...
+                                         <Loader2 className="mr-2 h-4 w-4 animate-spin"/> PDF (Loading...)
                                       </>
                                     ) : error ? (
-                                      `Error: ${error.message || "PDF generation failed"}`
+                                      `PDF Error: ${error.message || "Failed"}`
                                     ) : (
-                                      <><Download className="mr-2 h-4 w-4"/> Download PDF</>
+                                      <><Download className="mr-2 h-4 w-4"/> Download PDF (Backup)</>
                                     )}
                                  </Button>
                                );
@@ -435,9 +460,9 @@ export default function Home() {
                           </PDFDownloadLink>
                           
                           <Button 
-                            variant="outline" 
+                            variant="ghost" 
                             onClick={() => setGeneratedData(null)} 
-                            className="w-full bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:text-slate-900"
+                            className="w-full text-slate-500 hover:text-slate-700"
                           >
                              Create Another
                           </Button>
