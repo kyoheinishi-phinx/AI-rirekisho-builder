@@ -41,6 +41,7 @@ const createRirekishoDoc = (data: ResumeData): Document => {
       photoRun = new ImageRun({
         data: imgBuffer,
         transformation: { width: 113, height: 151 }, // 3cm x 4cm @ 96dpi approx
+        type: "jpg", // 一般的な画像形式としてjpgを指定 (pngでも動作する場合が多い)
       });
     } catch (e) {
       console.warn("Failed to process photo image", e);
