@@ -412,25 +412,32 @@ export default function Home() {
                             fileName="japanese_resume.pdf"
                           >
                             {/* @ts-ignore */}
-                            {({ blob, url, loading, error }) => (
-                               <Button 
-                                 className="w-full h-12 bg-green-600 hover:bg-green-700 text-white shadow-md shadow-green-200"
-                                 disabled={loading || !!error} 
-                               >
-                                  {loading ? (
-                                    <>
-                                       <Loader2 className="mr-2 h-4 w-4 animate-spin"/> Preparing PDF...
-                                    </>
-                                  ) : error ? (
-                                    "Error generating PDF" 
-                                  ) : (
-                                    <><Download className="mr-2 h-4 w-4"/> Download PDF</>
-                                  )}
-                               </Button>
-                            )}
+                            {({ blob, url, loading, error }) => {
+                               if (error) console.error("PDF Render Error:", error);
+                               return (
+                                 <Button 
+                                   className="w-full h-12 bg-green-600 hover:bg-green-700 text-white shadow-md shadow-green-200"
+                                   disabled={loading || !!error} 
+                                 >
+                                    {loading ? (
+                                      <>
+                                         <Loader2 className="mr-2 h-4 w-4 animate-spin"/> Preparing PDF...
+                                      </>
+                                    ) : error ? (
+                                      `Error: ${error.message || "PDF generation failed"}`
+                                    ) : (
+                                      <><Download className="mr-2 h-4 w-4"/> Download PDF</>
+                                    )}
+                                 </Button>
+                               );
+                            }}
                           </PDFDownloadLink>
                           
-                          <Button variant="outline" onClick={() => setGeneratedData(null)} className="w-full">
+                          <Button 
+                            variant="outline" 
+                            onClick={() => setGeneratedData(null)} 
+                            className="w-full bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:text-slate-900"
+                          >
                              Create Another
                           </Button>
                         </div>

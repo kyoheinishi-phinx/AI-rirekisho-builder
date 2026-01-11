@@ -3,17 +3,24 @@ import { Page, Text, View, Document, StyleSheet, Image, Font } from '@react-pdf/
 import { ResumeData } from '@/types/resume';
 
 // 日本語フォントの登録
-// ローカルのpublicフォルダから読み込むように変更
-// (クライアントサイドで実行されるため、URLは /fonts/... となる)
+// Vercel環境等でパス解決エラーを防ぐため、可能な限り絶対パスを解決して渡す
+const getFontSrc = (filename: string) => {
+  if (typeof window !== 'undefined') {
+    return `${window.location.origin}/fonts/${filename}`;
+  }
+  // サーバーサイド/ビルド時はとりあえずそのまま返す（実際にレンダリングされるのはクライアントサイド）
+  return `/fonts/${filename}`;
+};
+
 Font.register({
   family: 'NotoSansJP',
   fonts: [
     {
-      src: '/fonts/NotoSansJP-Regular.ttf',
+      src: getFontSrc('NotoSansJP-Regular.ttf'),
       fontWeight: 'normal',
     },
     {
-      src: '/fonts/NotoSansJP-Bold.ttf',
+      src: getFontSrc('NotoSansJP-Bold.ttf'),
       fontWeight: 'bold',
     }
   ],
