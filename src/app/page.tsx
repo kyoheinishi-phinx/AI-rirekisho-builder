@@ -1,13 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Upload, FileText, CheckCircle, Loader2, Download, X, Globe, Sparkles, Briefcase, ChevronRight, User } from "lucide-react";
+import { Upload, FileText, CheckCircle, Loader2, Download, X, Sparkles, User, ChevronRight } from "lucide-react";
 import { ResumeData } from "@/types/resume";
 import dynamic from "next/dynamic";
 
@@ -16,7 +16,7 @@ const PDFDownloadLink = dynamic(
   () => import("@react-pdf/renderer").then((mod) => mod.PDFDownloadLink),
   {
     ssr: false,
-    loading: () => <span className="flex items-center text-sm text-gray-500"><Loader2 className="w-3 h-3 mr-2 animate-spin"/> Loading PDF...</span>,
+    loading: () => <span className="flex items-center text-sm text-gray-500"><Loader2 className="w-3 h-3 mr-2 animate-spin"/> Loading PDF Engine...</span>,
   }
 );
 import { ResumePDF } from "@/components/pdf/ResumePDF";
@@ -27,9 +27,29 @@ export default function Home() {
   const [generatedData, setGeneratedData] = useState<ResumeData | null>(null);
   const [resumeText, setResumeText] = useState("");
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  
+  // Progress bar state
+  const [progress, setProgress] = useState(0);
 
   const pdfInputRef = useRef<HTMLInputElement>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
+
+  // プログレスバーのアニメーション制御
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isGenerating) {
+      setProgress(0);
+      interval = setInterval(() => {
+        setProgress((prev) => {
+          if (prev >= 90) return prev; // 90%で止める（完了待ち）
+          return prev + 5;
+        });
+      }, 500);
+    } else {
+      setProgress(0);
+    }
+    return () => clearInterval(interval);
+  }, [isGenerating]);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -109,6 +129,9 @@ export default function Home() {
 
       const data = await response.json();
       if (data.success) {
+        // 完了したら100%にする
+        setProgress(100);
+        
         const finalData = {
           ...data.data,
           basicInfo: {
@@ -147,10 +170,7 @@ export default function Home() {
           </div>
           <nav className="flex items-center gap-4">
              <a href="#" className="text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors">How it works</a>
-             <Button variant="outline" size="sm" className="hidden sm:flex">
-                <Globe className="w-4 h-4 mr-2" />
-                Language
-             </Button>
+             {/* ユーザー指摘により削除: 機能しないLanguageボタン */}
           </nav>
         </div>
       </header>
@@ -311,23 +331,39 @@ export default function Home() {
                 </CardContent>
               </Card>
 
-              <Button 
-                onClick={handleGenerate} 
-                disabled={isGenerating || (!resumeText && !photoPreview)}
-                className="w-full h-16 text-lg rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 shadow-lg shadow-indigo-200 transition-all transform hover:scale-[1.01]"
-              >
-                {isGenerating ? (
-                  <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Generating your Japanese Profile...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="mr-2 h-5 w-5" />
-                    Generate Japanese Resume
-                  </>
-                )}
-              </Button>
+              {/* Generate Button with Progress Bar */}
+              <div className="space-y-2">
+                 {isGenerating && (
+                    <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                      <div 
+                         className="bg-indigo-600 h-2.5 rounded-full transition-all duration-500 ease-out" 
+                         style={{ width: `${progress}%` }}
+                      ></div>
+                    </div>
+                 )}
+                 <Button 
+                   onClick={handleGenerate} 
+                   disabled={isGenerating || (!resumeText && !photoPreview)}
+                   className="w-full h-16 text-lg rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 shadow-lg shadow-indigo-200 transition-all transform hover:scale-[1.01]"
+                 >
+                   {isGenerating ? (
+                     <>
+                       <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                       Generating... {progress}%
+                     </>
+                   ) : (
+                     <>
+                       <Sparkles className="mr-2 h-5 w-5" />
+                       Generate Japanese Resume
+                     </>
+                   )}
+                 </Button>
+                 {isGenerating && (
+                    <p className="text-center text-sm text-slate-500 animate-pulse">
+                       AI is translating your experience into professional Japanese...
+                    </p>
+                 )}
+              </div>
             </div>
 
             {/* Right Column: Preview/Info */}
@@ -369,7 +405,9 @@ export default function Home() {
                         </div>
                         
                         <div className="flex flex-col gap-3">
+                          {/* Keyを追加してデータ更新時に再マウントさせる */}
                           <PDFDownloadLink
+                            key={JSON.stringify(generatedData)} 
                             document={<ResumePDF data={generatedData} />}
                             fileName="japanese_resume.pdf"
                           >
@@ -377,9 +415,17 @@ export default function Home() {
                             {({ blob, url, loading, error }) => (
                                <Button 
                                  className="w-full h-12 bg-green-600 hover:bg-green-700 text-white shadow-md shadow-green-200"
-                                 disabled={loading || !!error} // errorが存在する場合はtrue、そうでなければfalseにする (boolean型への変換)
+                                 disabled={loading || !!error} 
                                >
-                                  {loading ? "Preparing PDF..." : <><Download className="mr-2 h-4 w-4"/> Download PDF</>}
+                                  {loading ? (
+                                    <>
+                                       <Loader2 className="mr-2 h-4 w-4 animate-spin"/> Preparing PDF...
+                                    </>
+                                  ) : error ? (
+                                    "Error generating PDF" 
+                                  ) : (
+                                    <><Download className="mr-2 h-4 w-4"/> Download PDF</>
+                                  )}
                                </Button>
                             )}
                           </PDFDownloadLink>
