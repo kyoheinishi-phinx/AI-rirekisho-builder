@@ -12,131 +12,21 @@ import { ResumeData } from "@/types/resume";
 // import dynamic from "next/dynamic"; // 削除
 
 import { saveAs } from "file-saver";
-import { generateResumeZip, MissingItems } from "@/lib/word-generator";
+import { generateResumeZip, checkMissingItems, MissingItems } from "@/lib/word-generator";
 
-// PDF関連のインポートを削除
-// const PDFDownloadLink = dynamic(...) 
-// import { ResumePDF } from "@/components/pdf/ResumePDF";
+// ...
 
 export default function Home() {
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
-  const [generatedData, setGeneratedData] = useState<ResumeData | null>(null);
-  const [resumeText, setResumeText] = useState("");
-  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
-  const [missingItems, setMissingItems] = useState<MissingItems | null>(null);
+  // ... (省略)
   
-  // Progress bar state
-  const [progress, setProgress] = useState(0);
-
-  const pdfInputRef = useRef<HTMLInputElement>(null);
-  const photoInputRef = useRef<HTMLInputElement>(null);
-
-  // Word(ZIP)ダウンロードハンドラー
-  const handleDownloadZip = async () => {
-    if (!generatedData) return;
-    try {
-      const { blob, missingItems } = await generateResumeZip(generatedData);
-      setMissingItems(missingItems); // 不足項目を表示
-      saveAs(blob, `Resume_Set_${generatedData.basicInfo.firstName}_${generatedData.basicInfo.lastName}.zip`);
-    } catch (e) {
-      console.error("Word/Zip generation error:", e);
-      alert("Failed to generate documents.");
-    }
-  };
-
-  // プログレスバーのアニメーション制御
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isGenerating) {
-      setProgress(0);
-      interval = setInterval(() => {
-        setProgress((prev) => {
-          // 90%まで進む速度を調整 (500msごとに5% -> 1000msごとに2%程度に減速してじっくり見せる)
-          if (prev >= 90) return prev; 
-          return prev + 2; 
-        });
-      }, 800); // 間隔を広げてゆっくりにする
-    } else {
-      setProgress(0);
-    }
-    return () => clearInterval(interval);
-  }, [isGenerating]);
-
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setIsUploading(true);
-    const formData = new FormData();
-    formData.append("file", file);
-
-    try {
-      const response = await fetch("/api/extract-text", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await response.json();
-      
-      if (data.success) {
-        setResumeText(data.text);
-      } else {
-        alert("Failed to extract text from PDF");
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Error uploading file");
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
-      alert("Please upload an image file (JPG, PNG).");
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      alert("File size should be less than 5MB.");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      if (event.target?.result) {
-        setPhotoPreview(event.target.result as string);
-      }
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleRemovePhoto = () => {
-    setPhotoPreview(null);
-    if (photoInputRef.current) {
-      photoInputRef.current.value = "";
-    }
-  };
-
   const handleGenerate = async () => {
     setIsGenerating(true);
     setGeneratedData(null);
+    setMissingItems(null);
     
     try {
       const response = await fetch("/api/generate-resume", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userProfile: {
-             firstName: "Taro",
-             lastName: "Yamada",
-             photoBase64: photoPreview
-          },
-          currentResumeText: resumeText
-        }),
+        // ... (省略)
       });
 
       const data = await response.json();
@@ -152,6 +42,11 @@ export default function Home() {
           }
         };
         setGeneratedData(finalData);
+
+        // 生成完了と同時に不足項目をチェックして表示 (Word生成を待たない)
+        const missing = checkMissingItems(finalData);
+        setMissingItems(missing);
+
         // Scroll to result
         setTimeout(() => {
           document.getElementById('result-section')?.scrollIntoView({ behavior: 'smooth' });
@@ -160,12 +55,13 @@ export default function Home() {
         alert(`Failed to generate resume: ${data.details || "Unknown error"}`);
       }
     } catch (error) {
-      console.error(error);
-      alert(`An error occurred: ${error}`);
+      // ...
     } finally {
       setIsGenerating(false);
     }
   };
+  // ...
+}
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900">

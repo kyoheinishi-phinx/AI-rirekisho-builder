@@ -481,11 +481,18 @@ export const generateResumeZip = async (data: ResumeData): Promise<{ blob: Blob,
   const zipBlob = await zip.generateAsync({ type: "blob" });
 
   // 不足項目チェック
-  const missingItems: MissingItems = {
+  const missingItems = checkMissingItems(data);
+
+  return { blob: zipBlob, missingItems };
+};
+
+/**
+ * 不足項目チェック関数 (軽量)
+ */
+export const checkMissingItems = (data: ResumeData): MissingItems => {
+  return {
     birthDate: !data.basicInfo.birthDate,
     address: !data.basicInfo.address,
     phone: !data.basicInfo.phone,
   };
-
-  return { blob: zipBlob, missingItems };
 };
