@@ -210,7 +210,7 @@ const createRirekishoDoc = (data: ResumeData): Document => {
   for (let i = 0; i < minRows - currentRows; i++) {
     historyRows.push(
       new TableRow({
-        height: { value: 400, rule: HeightRule.AT_LEAST }, // 高さを確保
+        height: { value: 400, rule: HeightRule.ATLEAST }, // 高さを確保
         children: [
           new TableCell({ children: [], borders: BORDER_STYLE }),
           new TableCell({ children: [], borders: BORDER_STYLE }),
@@ -250,7 +250,7 @@ const createRirekishoDoc = (data: ResumeData): Document => {
   for (let i = 0; i < minCertRows - data.certifications.length; i++) {
     certRows.push(
       new TableRow({
-        height: { value: 400, rule: HeightRule.AT_LEAST },
+        height: { value: 400, rule: HeightRule.ATLEAST },
         children: [
           new TableCell({ children: [], borders: BORDER_STYLE }),
           new TableCell({ children: [], borders: BORDER_STYLE }),
