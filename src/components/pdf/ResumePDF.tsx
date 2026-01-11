@@ -3,16 +3,17 @@ import { Page, Text, View, Document, StyleSheet, Image, Font } from '@react-pdf/
 import { ResumeData } from '@/types/resume';
 
 // 日本語フォントの登録
-// Noto Sans JP (Google Fonts) を使用
+// ローカルのpublicフォルダから読み込むように変更
+// (クライアントサイドで実行されるため、URLは /fonts/... となる)
 Font.register({
   family: 'NotoSansJP',
   fonts: [
     {
-      src: 'https://fonts.gstatic.com/s/notosansjp/v52/-F6jfjtqLzI2JPCgQBnw7HFyzSD-AsregP8_1v4.ttf',
+      src: '/fonts/NotoSansJP-Regular.ttf',
       fontWeight: 'normal',
     },
     {
-      src: 'https://fonts.gstatic.com/s/notosansjp/v52/-F62fjtqLzI2JPCgQBnw7HFyzSD-AsregP8_1v5_kno.ttf',
+      src: '/fonts/NotoSansJP-Bold.ttf',
       fontWeight: 'bold',
     }
   ],
@@ -22,7 +23,7 @@ const styles = StyleSheet.create({
   page: {
     padding: 30,
     fontSize: 11,
-    fontFamily: 'NotoSansJP', // 日本語フォントを適用
+    fontFamily: 'NotoSansJP',
   },
   header: {
     marginBottom: 20,

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useRef } from "react"; // useRefを追加
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,6 +29,10 @@ export default function Home() {
   
   // 顔写真のプレビュー用state
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+
+  // ファイル入力への参照
+  const pdfInputRef = useRef<HTMLInputElement>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
 
   // PDFアップロード処理
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -88,6 +92,9 @@ export default function Home() {
 
   const handleRemovePhoto = () => {
     setPhotoPreview(null);
+    if (photoInputRef.current) {
+      photoInputRef.current.value = "";
+    }
   };
 
   // 履歴書生成処理
@@ -212,11 +219,15 @@ export default function Home() {
                       </div>
                     </div>
                   ) : (
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center text-center hover:bg-gray-50 cursor-pointer transition-colors relative">
+                    <div 
+                      className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center text-center hover:bg-gray-50 cursor-pointer transition-colors relative"
+                      onClick={() => photoInputRef.current?.click()} // 明示的にクリックイベントをハンドリング
+                    >
                       <input 
+                        ref={photoInputRef}
                         type="file" 
                         accept="image/*" 
-                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        className="hidden" // hiddenクラスで隠し、親要素クリックで発火させる方式に変更
                         onChange={handlePhotoUpload}
                       />
                       <Upload className="h-8 w-8 text-gray-400 mb-2" />
@@ -237,11 +248,15 @@ export default function Home() {
               </CardHeader>
               <CardContent>
                  <div className="space-y-4">
-                    <div className="border-2 border-dashed border-blue-200 bg-blue-50 rounded-lg p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-blue-100 transition-colors relative">
+                    <div 
+                      className="border-2 border-dashed border-blue-200 bg-blue-50 rounded-lg p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-blue-100 transition-colors relative"
+                      onClick={() => pdfInputRef.current?.click()} // 明示的にクリックイベントをハンドリング
+                    >
                       <input 
+                        ref={pdfInputRef}
                         type="file" 
                         accept=".pdf" 
-                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        className="hidden" // hiddenクラスで隠し、親要素クリックで発火させる方式に変更
                         onChange={handleFileUpload}
                       />
                       {isUploading ? (
