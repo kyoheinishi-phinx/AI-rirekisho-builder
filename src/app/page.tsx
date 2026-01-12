@@ -193,6 +193,9 @@ export default function Home() {
             <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-violet-600">
               Phinx Resume AI
             </span>
+            <span className="ml-2 px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-xs font-bold border border-amber-200 shadow-sm">
+              Beta
+            </span>
           </div>
           {/* Link removed as requested */}
         </div>
