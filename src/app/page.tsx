@@ -517,11 +517,14 @@ export default function Home() {
                              {missingItems && (Object.values(missingItems).some(v => v)) && (
                                <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4 text-sm text-yellow-800 mt-2 text-left">
                                  <p className="font-bold mb-1 flex items-center"><span className="text-xl mr-1">⚠️</span> Missing Information:</p>
-                                 <p className="mb-2 text-xs opacity-90">Please fill in these blanks in the Word file:</p>
+                                 <p className="mb-2 text-xs opacity-90">The following information is missing or incomplete. Please fill them in the Word file:</p>
                                  <ul className="list-disc list-inside space-y-1 ml-1 text-xs font-medium">
                                    {missingItems.birthDate && <li>Birth Date (生年月日)</li>}
                                    {missingItems.address && <li>Current Address (現住所)</li>}
                                    {missingItems.phone && <li>Phone Number (電話番号)</li>}
+                                   {missingItems.email && <li>Email Address (メールアドレス)</li>}
+                                   {missingItems.education && <li>Education History (学歴)</li>}
+                                   {missingItems.workExperience && <li>Work Experience (職歴)</li>}
                                  </ul>
                                </div>
                              )}

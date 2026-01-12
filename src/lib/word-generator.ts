@@ -7,6 +7,9 @@ export interface MissingItems {
   birthDate: boolean;
   address: boolean;
   phone: boolean;
+  email: boolean;
+  education: boolean;
+  workExperience: boolean;
 }
 
 // 共通スタイル定義
@@ -518,5 +521,8 @@ export const checkMissingItems = (data: ResumeData): MissingItems => {
     birthDate: !data.basicInfo.birthDate,
     address: !data.basicInfo.address,
     phone: !data.basicInfo.phone,
+    email: !data.basicInfo.email,
+    education: data.education.length === 0,
+    workExperience: data.workExperience.length === 0,
   };
 };
