@@ -21,6 +21,7 @@ export default function Home() {
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
   const [missingItems, setMissingItems] = useState<MissingItems | null>(null);
+  const [isPdfUploaded, setIsPdfUploaded] = useState(false);
 
   const pdfInputRef = useRef<HTMLInputElement>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
@@ -72,6 +73,7 @@ export default function Home() {
       const data = await response.json();
       if (data.success) {
         setResumeText(data.text);
+        setIsPdfUploaded(true);
       } else {
         alert(`Failed to extract text from PDF: ${data.details || data.error || "Unknown error"}`);
       }
@@ -381,14 +383,14 @@ export default function Home() {
                             <Loader2 className="w-10 h-10 text-indigo-600 animate-spin mb-3" />
                             <p className="text-indigo-800 font-medium">Analyzing PDF...</p>
                           </div>
-                        ) : resumeText ? (
+                        ) : (isPdfUploaded && resumeText) ? (
                           <div className="flex flex-col items-center">
                             <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mb-3">
                               <CheckCircle className="w-6 h-6 text-green-600" />
                             </div>
                             <p className="text-green-800 font-medium text-lg">Resume Uploaded</p>
                             <p className="text-green-600 text-sm mt-1">Ready to translate</p>
-                            <Button variant="ghost" size="sm" className="mt-2 text-green-700 hover:text-green-800 hover:bg-green-100" onClick={(e) => { e.stopPropagation(); setResumeText(""); }}>
+                            <Button variant="ghost" size="sm" className="mt-2 text-green-700 hover:text-green-800 hover:bg-green-100" onClick={(e) => { e.stopPropagation(); setResumeText(""); setIsPdfUploaded(false); }}>
                                Remove & Upload New
                             </Button>
                           </div>
@@ -408,7 +410,7 @@ export default function Home() {
                         )}
                      </div>
                      
-                     {!resumeText && (
+                     {!isPdfUploaded && (
                        <div className="text-center">
                          <span className="text-xs text-slate-400 uppercase tracking-widest bg-white px-2 relative z-10">or enter manually</span>
                          <div className="border-t border-slate-100 -mt-2"></div>
