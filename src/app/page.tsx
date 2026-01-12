@@ -22,6 +22,9 @@ export default function Home() {
   const [progress, setProgress] = useState(0);
   const [missingItems, setMissingItems] = useState<MissingItems | null>(null);
   const [isPdfUploaded, setIsPdfUploaded] = useState(false);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
 
   const pdfInputRef = useRef<HTMLInputElement>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
@@ -118,8 +121,9 @@ export default function Home() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userProfile: {
-            firstName: "Taro", 
-            lastName: "Yamada", 
+            firstName: firstName || "Taro", 
+            lastName: lastName || "Yamada", 
+            email: email || "taro.yamada@example.com",
             photoBase64: photoPreview
           },
           currentResumeText: resumeText
@@ -343,16 +347,16 @@ export default function Home() {
                           <div className="grid grid-cols-2 gap-3">
                             <div className="space-y-1.5">
                               <Label htmlFor="firstName" className="text-xs uppercase text-slate-500 tracking-wider">First Name</Label>
-                              <Input id="firstName" placeholder="Taro" className="bg-slate-50 border-slate-200 focus:border-indigo-300 transition-colors" />
+                              <Input id="firstName" placeholder="Taro" className="bg-slate-50 border-slate-200 focus:border-indigo-300 transition-colors" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
                             </div>
                             <div className="space-y-1.5">
                               <Label htmlFor="lastName" className="text-xs uppercase text-slate-500 tracking-wider">Last Name</Label>
-                              <Input id="lastName" placeholder="Yamada" className="bg-slate-50 border-slate-200 focus:border-indigo-300 transition-colors" />
+                              <Input id="lastName" placeholder="Yamada" className="bg-slate-50 border-slate-200 focus:border-indigo-300 transition-colors" value={lastName} onChange={(e) => setLastName(e.target.value)} />
                             </div>
                           </div>
                           <div className="space-y-1.5">
                              <Label htmlFor="email" className="text-xs uppercase text-slate-500 tracking-wider">Email</Label>
-                             <Input id="email" type="email" placeholder="taro.yamada@example.com" className="bg-slate-50 border-slate-200 focus:border-indigo-300 transition-colors" />
+                             <Input id="email" type="email" placeholder="taro.yamada@example.com" className="bg-slate-50 border-slate-200 focus:border-indigo-300 transition-colors" value={email} onChange={(e) => setEmail(e.target.value)} />
                           </div>
                        </div>
                     </div>
@@ -521,9 +525,31 @@ export default function Home() {
 
                              {/* 不足項目の警告表示 */}
                              {missingItems && (Object.values(missingItems).some(v => v)) && (
-                               <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4 text-sm text-yellow-800 mt-2 text-left">
-                                 <p className="font-bold mb-1 flex items-center"><span className="text-xl mr-1">⚠️</span> Missing Information:</p>
-                                 <p className="mb-2 text-xs opacity-90">The following information is missing or incomplete. Please fill them in the Word file:</p>
+                               <div className={`${Object.values(missingItems).filter(v => v).length >= 4 ? 'bg-red-50 border-red-200 text-red-800' : 'bg-yellow-50 border-yellow-200 text-yellow-800'} border rounded-md p-4 text-sm mt-2 text-left`}>
+                                 <p className="font-bold mb-1 flex items-center">
+                                   <span className="text-xl mr-1">{Object.values(missingItems).filter(v => v).length >= 4 ? '🚫' : '⚠️'}</span> 
+                                   Missing Information:
+                                 </p>
+                                 {Object.values(missingItems).filter(v => v).length >= 4 ? (
+                                   <>
+                                     <p className="mb-2 text-xs opacity-90 font-bold">
+                                       生成するには、あまりにも情報が不足しています。
+                                     </p>
+                                     <p className="mb-2 text-xs opacity-90">
+                                       下記のページなどを参考にRirekishoとshokumukeirekisho の書き方を学んで必要項目を足してからお試しください:
+                                     </p>
+                                     <a 
+                                       href="https://www.daijob.com/en/guide/tipsadvice/resume/" 
+                                       target="_blank" 
+                                       rel="noopener noreferrer" 
+                                       className="text-xs font-bold underline hover:text-red-600 block mb-3"
+                                     >
+                                       Daijob.com - Resume Guide
+                                     </a>
+                                   </>
+                                 ) : (
+                                   <p className="mb-2 text-xs opacity-90">The following information is missing or incomplete. Please fill them in the Word file:</p>
+                                 )}
                                  <ul className="list-disc list-inside space-y-1 ml-1 text-xs font-medium">
                                    {missingItems.birthDate && <li>Birth Date (生年月日)</li>}
                                    {missingItems.address && <li>Current Address (現住所)</li>}
