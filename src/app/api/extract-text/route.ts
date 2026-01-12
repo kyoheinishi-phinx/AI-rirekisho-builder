@@ -39,8 +39,13 @@ export async function POST(req: NextRequest) {
                   if (textItem.R) {
                     for (const run of textItem.R) {
                       if (run.T) {
-                        // decodeURIComponentでデコードする
-                        extractedText += decodeURIComponent(run.T) + " ";
+                        // decodeURIComponentでデコードする。失敗時は元のテキストを使用。
+                        try {
+                          extractedText += decodeURIComponent(run.T) + " ";
+                        } catch (e) {
+                          console.warn("URI malformed, using raw text:", run.T);
+                          extractedText += run.T + " ";
+                        }
                       }
                     }
                   }
