@@ -73,11 +73,11 @@ export default function Home() {
       if (data.success) {
         setResumeText(data.text);
       } else {
-        alert("Failed to extract text from PDF");
+        alert(`Failed to extract text from PDF: ${data.details || data.error || "Unknown error"}`);
       }
     } catch (error) {
       console.error("Upload error:", error);
-      alert("Error uploading file");
+      alert(`Error uploading file: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
       setIsUploading(false);
     }
