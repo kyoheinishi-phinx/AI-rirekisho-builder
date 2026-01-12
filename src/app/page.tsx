@@ -230,11 +230,12 @@ export default function Home() {
           <motion.h1 variants={fadeInUp} className="text-5xl md:text-7xl font-extrabold tracking-tight text-slate-900 mb-6 leading-tight">
             Get Hired in <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-violet-600">Japan</span>
           </motion.h1>
-          <motion.p variants={fadeInUp} className="text-xl text-slate-600 max-w-2xl mx-auto mb-10 leading-relaxed">
-            Transform your English resume into a professional Japanese 
-            <span className="font-semibold text-slate-800"> Rirekisho (履歴書)</span> and 
-            <span className="font-semibold text-slate-800"> Shokumu Keirekisho (職務経歴書)</span> in seconds using advanced AI.
-          </motion.p>
+            <motion.p variants={fadeInUp} className="text-xl text-slate-600 max-w-2xl mx-auto mb-10 leading-relaxed">
+              Transform your English or Japanese resume into a professional, polished Japanese 
+              <span className="font-semibold text-slate-800"> Rirekisho (履歴書)</span> and 
+              <span className="font-semibold text-slate-800"> Shokumu Keirekisho (職務経歴書)</span>. 
+              Our AI refines your existing Japanese or translates from English to business-level Japanese.
+            </motion.p>
           
           <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button 
@@ -269,7 +270,7 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-bold text-slate-900 mb-3">1. Upload</h3>
               <p className="text-slate-600 leading-relaxed">
-                Upload your existing English resume PDF or simply paste your profile summary text.
+                Upload your existing resume (English or Japanese) or simply paste your profile summary text.
               </p>
             </motion.div>
 
@@ -280,9 +281,9 @@ export default function Home() {
               <div className="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center mx-auto mb-6 text-indigo-600">
                 <Zap className="w-8 h-8" />
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-3">2. AI Generation</h3>
+              <h3 className="text-xl font-bold text-slate-900 mb-3">2. AI Optimization</h3>
               <p className="text-slate-600 leading-relaxed">
-                Our AI analyzes your experience and translates it into natural, business-level Japanese.
+                Our AI translates English to Japanese or refines your Japanese text into professional business language.
               </p>
             </motion.div>
 
@@ -403,9 +404,9 @@ export default function Home() {
                             <div className="w-14 h-14 rounded-full bg-white shadow-sm flex items-center justify-center mb-4">
                                <Upload className="w-6 h-6 text-indigo-600" />
                             </div>
-                            <h4 className="text-lg font-semibold text-indigo-900">Drop your English Resume PDF</h4>
+                            <h4 className="text-lg font-semibold text-indigo-900">Drop your Resume PDF</h4>
                             <p className="text-indigo-600/80 text-sm mt-2 max-w-xs mx-auto">
-                              Our AI will extract your skills and experience automatically.
+                              English or Japanese accepted. <br/>AI will extract and refine your experience.
                             </p>
                             <p className="text-indigo-400 text-xs mt-2">
                               Max size: 4MB
