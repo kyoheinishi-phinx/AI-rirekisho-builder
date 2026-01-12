@@ -32,6 +32,9 @@ export class GeminiService implements AIService {
     You are an expert Japanese resume writer.
     Please convert the following user information into a structured Japanese Resume (Rirekisho) and Curriculum Vitae (Shokumu Keirekisho) data.
     
+    If the INPUT DATA is already in Japanese, your task is to **refine and polish** the language to meet high professional business standards (Keigo), ensuring the tone is appropriate for a Japanese workplace. Do not translate it into English.
+    If the INPUT DATA is in English, translate it into natural, professional business Japanese.
+
     The output MUST be a valid JSON object matching this schema (do not include markdown code blocks, just raw JSON):
     {
       "basicInfo": {
