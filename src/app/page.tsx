@@ -333,6 +333,7 @@ export default function Home() {
                           >
                             <Upload className="w-8 h-8 mb-2" />
                             <span className="text-xs font-medium">Upload</span>
+                            <span className="text-[10px] text-slate-400 mt-1">Max 4MB</span>
                             <input ref={photoInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
                           </div>
                        )}
@@ -399,6 +400,9 @@ export default function Home() {
                             <h4 className="text-lg font-semibold text-indigo-900">Drop your English Resume PDF</h4>
                             <p className="text-indigo-600/80 text-sm mt-2 max-w-xs mx-auto">
                               Our AI will extract your skills and experience automatically.
+                            </p>
+                            <p className="text-indigo-400 text-xs mt-2">
+                              Max size: 4MB
                             </p>
                           </>
                         )}
