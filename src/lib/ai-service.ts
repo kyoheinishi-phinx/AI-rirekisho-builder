@@ -28,13 +28,18 @@ export class GeminiService implements AIService {
     // 写真データはAI入力には不要かつ巨大すぎるため除外する
     const { photoBase64, ...userProfileWithoutPhoto } = request.userProfile || {};
 
+    // 日本語のテキストが入力された場合は推敲・洗練を指示するプロンプトに切り替える
+    // 構造化データがある場合はそれも考慮する
+    const isJapaneseInput = (request.currentResumeText && /[一-龠]+|[ぁ-ゔ]+|[ァ-ヴー]+/.test(request.currentResumeText)) ||
+                            (request.structuredData && JSON.stringify(request.structuredData).match(/[一-龠]+|[ぁ-ゔ]+|[ァ-ヴー]+/));
+
     const prompt = `
     You are an expert Japanese resume writer.
-    Please convert the following user information into a structured Japanese Resume (Rirekisho) and Curriculum Vitae (Shokumu Keirekisho) data.
+    ${isJapaneseInput 
+      ? `Please refine and polish the following user information into a structured, professional Japanese Resume (Rirekisho) and Curriculum Vitae (Shokumu Keirekisho) data. Focus on improving clarity, conciseness, and cultural appropriateness for Japanese business contexts.`
+      : `Please convert the following user information into a structured Japanese Resume (Rirekisho) and Curriculum Vitae (Shokumu Keirekisho) data.`
+    }
     
-    If the INPUT DATA is already in Japanese, your task is to **refine and polish** the language to meet high professional business standards (Keigo), ensuring the tone is appropriate for a Japanese workplace. Do not translate it into English.
-    If the INPUT DATA is in English, translate it into natural, professional business Japanese.
-
     The output MUST be a valid JSON object matching this schema (do not include markdown code blocks, just raw JSON):
     {
       "basicInfo": {
@@ -66,10 +71,14 @@ export class GeminiService implements AIService {
 
     INPUT DATA:
     User Profile: ${JSON.stringify(userProfileWithoutPhoto)}
-    Resume Text (OCR): ${request.currentResumeText || "None"}
+    ${request.structuredData 
+      ? `Structured Data (Manual Input): ${JSON.stringify(request.structuredData)}`
+      : `Resume Text (OCR): ${request.currentResumeText || "None"}`
+    }
     
     IMPORTANT:
     - Translate everything into natural, professional business Japanese suitable for a Japanese company.
+    - If Structured Data is provided, treat it as the primary source of truth. Translate and Refine it.
     - If specific details are missing, leave them as empty strings or reasonable placeholders, but try to infer from context.
     - Ensure 'selfPromotion' (Jiko PR) is very persuasive and culturally appropriate for Japan.
     `;
