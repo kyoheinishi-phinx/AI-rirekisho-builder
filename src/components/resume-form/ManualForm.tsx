@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
-import { Plus, Trash2, GraduationCap, Briefcase, Award, Languages, Sparkles } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Plus, Trash2, GraduationCap, Briefcase, Award, Languages, Sparkles, X } from "lucide-react";
 import { Education, WorkExperience, Language, ResumeData } from "@/types/resume";
 
 interface ManualFormProps {
@@ -14,8 +15,27 @@ interface ManualFormProps {
   setFormData: React.Dispatch<React.SetStateAction<Partial<ResumeData>>>;
 }
 
+const LANGUAGE_LEVELS = [
+  "Native",
+  "Fluent",
+  "Business",
+  "Conversational",
+  "Basic",
+  "Beginner"
+];
+
+const JAPANESE_LEVELS = [
+  "Native",
+  "N1 (Advanced)",
+  "N2 (Pre-Advanced)",
+  "N3 (Intermediate)",
+  "N4 (Elementary)",
+  "N5 (Basic)"
+];
+
 export function ManualForm({ formData, setFormData }: ManualFormProps) {
   const [activeTab, setActiveTab] = useState<"education" | "work" | "skills">("education");
+  const [skillInput, setSkillInput] = useState("");
 
   // Helper to update specific fields
   const updateEducation = (index: number, field: keyof Education, value: any) => {
@@ -62,6 +82,59 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
     const newWork = [...(formData.workExperience || [])];
     newWork.splice(index, 1);
     setFormData({ ...formData, workExperience: newWork });
+  };
+
+  const addSkill = () => {
+    if (!skillInput.trim()) return;
+    setFormData({
+      ...formData,
+      skills: [...(formData.skills || []), skillInput.trim()]
+    });
+    setSkillInput("");
+  };
+
+  const handleSkillKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      addSkill();
+    }
+  };
+
+  const removeSkill = (index: number) => {
+    const newSkills = [...(formData.skills || [])];
+    newSkills.splice(index, 1);
+    setFormData({ ...formData, skills: newSkills });
+  };
+
+  const addLanguage = () => {
+    setFormData({
+      ...formData,
+      languages: [
+        ...(formData.languages || []),
+        { language: "", level: "" }
+      ]
+    });
+  };
+
+  const updateLanguage = (index: number, field: keyof Language, value: any) => {
+    const newLanguages = [...(formData.languages || [])];
+    if (!newLanguages[index]) return;
+    
+    // If language changes to Japanese, reset level to N-level compatible if needed
+    // But simplified logic: just update
+    (newLanguages[index] as any)[field] = value;
+    setFormData({ ...formData, languages: newLanguages });
+  };
+
+  const removeLanguage = (index: number) => {
+    const newLanguages = [...(formData.languages || [])];
+    newLanguages.splice(index, 1);
+    setFormData({ ...formData, languages: newLanguages });
+  };
+
+  const isJapanese = (lang: string) => {
+    const l = lang.toLowerCase();
+    return l === "japanese" || l === "nihongo" || l === "日本語";
   };
 
   return (
@@ -129,6 +202,7 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                       <Label className="text-xs font-semibold text-slate-500">Start Date</Label>
                       <Input 
                         type="month" 
+                        lang="en" // Hint for English locale
                         value={edu.startDate} 
                         onChange={(e) => updateEducation(index, "startDate", e.target.value)}
                         className="bg-white"
@@ -138,6 +212,7 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                       <Label className="text-xs font-semibold text-slate-500">End Date</Label>
                       <Input 
                         type="month" 
+                        lang="en" // Hint for English locale
                         value={edu.endDate || ""} 
                         onChange={(e) => updateEducation(index, "endDate", e.target.value)}
                         disabled={edu.isCurrent}
@@ -188,6 +263,7 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                       <Label className="text-xs font-semibold text-slate-500">Start Date</Label>
                       <Input 
                         type="month" 
+                        lang="en"
                         value={work.startDate} 
                         onChange={(e) => updateWork(index, "startDate", e.target.value)}
                         className="bg-white"
@@ -197,6 +273,7 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                       <Label className="text-xs font-semibold text-slate-500">End Date</Label>
                       <Input 
                         type="month" 
+                        lang="en"
                         value={work.endDate || ""} 
                         onChange={(e) => updateWork(index, "endDate", e.target.value)}
                         className="bg-white"
@@ -228,34 +305,70 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
               <Label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
                 <Award className="w-4 h-4" /> Skills & Certifications
               </Label>
-              <Textarea 
-                placeholder="List your skills (e.g. React, Python, AWS) and certifications..."
-                value={formData.skills?.join(", ")}
-                onChange={(e) => setFormData({...formData, skills: e.target.value.split(",").map(s => s.trim())})}
-                className="bg-white min-h-[80px]"
-              />
-              <p className="text-xs text-slate-500">Separate with commas</p>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {(formData.skills || []).map((skill, index) => (
+                  <span key={index} className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1">
+                    {skill}
+                    <button onClick={() => removeSkill(index)} className="hover:text-indigo-900 focus:outline-none">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <Input 
+                  placeholder="Type a skill and press Enter (e.g. React, Python)"
+                  value={skillInput}
+                  onChange={(e) => setSkillInput(e.target.value)}
+                  onKeyDown={handleSkillKeyDown}
+                  className="bg-white"
+                />
+                <Button onClick={addSkill} variant="outline" size="icon">
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
 
             <div className="space-y-2">
               <Label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
                 <Languages className="w-4 h-4" /> Languages
               </Label>
-              <Input 
-                placeholder="e.g. English (Native), Japanese (N3)"
-                // Simplified for MVP - parsing text to object array later if needed, or just passing string to AI
-                onChange={(e) => {
-                    // This is a bit hacky for the UI, ideally we'd have a list input. 
-                    // For now, let's just store it in a temp field or let AI parse it from a single string if we change the type
-                    // But here we are bound by ResumeData type.
-                    // Let's implement a simple parser or just use a text area for "Self Promotion" which includes everything.
-                }}
-                className="bg-white"
-              />
-              <p className="text-xs text-slate-500">Format: Language (Level)</p>
+              <div className="space-y-3">
+                {(formData.languages || []).map((lang, index) => (
+                   <div key={index} className="flex gap-2 items-center bg-white p-2 rounded-lg border border-slate-200">
+                      <Input 
+                        placeholder="Language (e.g. English)"
+                        value={lang.language}
+                        onChange={(e) => updateLanguage(index, "language", e.target.value)}
+                        className="flex-1 border-0 focus-visible:ring-0 px-2"
+                      />
+                      <Select 
+                        value={lang.level} 
+                        onValueChange={(val) => updateLanguage(index, "level", val)}
+                      >
+                        <SelectTrigger className="w-[180px] border-l rounded-none">
+                          <SelectValue placeholder="Select Level" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {isJapanese(lang.language) ? (
+                             JAPANESE_LEVELS.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)
+                          ) : (
+                             LANGUAGE_LEVELS.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)
+                          )}
+                        </SelectContent>
+                      </Select>
+                      <Button variant="ghost" size="icon" className="text-slate-400 hover:text-red-500 h-8 w-8" onClick={() => removeLanguage(index)}>
+                        <X className="w-4 h-4" />
+                      </Button>
+                   </div>
+                ))}
+                <Button onClick={addLanguage} variant="outline" size="sm" className="w-full border-dashed text-slate-500">
+                   <Plus className="w-3 h-3 mr-1" /> Add Language
+                </Button>
+              </div>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2 pt-2">
               <Label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
                 <Sparkles className="w-4 h-4" /> Self Promotion / Motivation
               </Label>
@@ -272,4 +385,3 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
     </div>
   );
 }
-
