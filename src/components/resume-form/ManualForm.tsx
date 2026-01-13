@@ -148,7 +148,7 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                 </CardContent>
               </Card>
             ))}
-            <Button onClick={addEducation} variant="outline" className="w-full border-dashed border-indigo-300 text-indigo-600 hover:bg-indigo-50">
+            <Button onClick={addEducation} variant="default" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm">
               <Plus className="w-4 h-4 mr-2" /> Add Education
             </Button>
           </div>
@@ -215,7 +215,7 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                 </CardContent>
               </Card>
             ))}
-            <Button onClick={addWork} variant="outline" className="w-full border-dashed border-indigo-300 text-indigo-600 hover:bg-indigo-50">
+            <Button onClick={addWork} variant="default" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm">
               <Plus className="w-4 h-4 mr-2" /> Add Work Experience
             </Button>
           </div>

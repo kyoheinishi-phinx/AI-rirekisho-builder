@@ -512,8 +512,8 @@ export default function Home() {
                  <div className="bg-blue-50 border border-blue-200 rounded-md p-4 text-sm text-blue-800 mt-2 text-left">
                     <p className="font-bold mb-1 flex items-center"><span className="text-xl mr-1">💡</span> AI Note:</p>
                     <p className="text-xs opacity-90">
-                      提供された情報が不足している場合、AIは推測を交えて内容を補完することがあります。
-                      <br/>必ず提出前にご自身で内容を確認・編集してください。
+                      If the provided information is insufficient, AI may infer and supplement the content.
+                      <br/>Please be sure to review and edit the content yourself before submission.
                     </p>
                  </div>
               </div>
