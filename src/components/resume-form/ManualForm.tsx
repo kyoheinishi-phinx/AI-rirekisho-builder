@@ -1,0 +1,275 @@
+"use client";
+
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent } from "@/components/ui/card";
+import { Plus, Trash2, GraduationCap, Briefcase, Award, Languages, Sparkles } from "lucide-react";
+import { Education, WorkExperience, Language, ResumeData } from "@/types/resume";
+
+interface ManualFormProps {
+  formData: Partial<ResumeData>;
+  setFormData: React.Dispatch<React.SetStateAction<Partial<ResumeData>>>;
+}
+
+export function ManualForm({ formData, setFormData }: ManualFormProps) {
+  const [activeTab, setActiveTab] = useState<"education" | "work" | "skills">("education");
+
+  // Helper to update specific fields
+  const updateEducation = (index: number, field: keyof Education, value: any) => {
+    const newEducation = [...(formData.education || [])];
+    if (!newEducation[index]) return;
+    (newEducation[index] as any)[field] = value;
+    setFormData({ ...formData, education: newEducation });
+  };
+
+  const addEducation = () => {
+    setFormData({
+      ...formData,
+      education: [
+        ...(formData.education || []),
+        { schoolName: "", degree: "", startDate: "", endDate: "", isCurrent: false }
+      ]
+    });
+  };
+
+  const removeEducation = (index: number) => {
+    const newEducation = [...(formData.education || [])];
+    newEducation.splice(index, 1);
+    setFormData({ ...formData, education: newEducation });
+  };
+
+  const updateWork = (index: number, field: keyof WorkExperience, value: any) => {
+    const newWork = [...(formData.workExperience || [])];
+    if (!newWork[index]) return;
+    (newWork[index] as any)[field] = value;
+    setFormData({ ...formData, workExperience: newWork });
+  };
+
+  const addWork = () => {
+    setFormData({
+      ...formData,
+      workExperience: [
+        ...(formData.workExperience || []),
+        { companyName: "", position: "", startDate: "", endDate: "", isCurrent: false, description: "" }
+      ]
+    });
+  };
+
+  const removeWork = (index: number) => {
+    const newWork = [...(formData.workExperience || [])];
+    newWork.splice(index, 1);
+    setFormData({ ...formData, workExperience: newWork });
+  };
+
+  return (
+    <div className="space-y-6 animate-in fade-in duration-500">
+      {/* Tabs */}
+      <div className="flex space-x-2 border-b border-slate-200 pb-1 overflow-x-auto">
+        <button
+          onClick={() => setActiveTab("education")}
+          className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors flex items-center gap-2 ${
+            activeTab === "education" ? "bg-indigo-50 text-indigo-700 border-b-2 border-indigo-600" : "text-slate-500 hover:text-slate-700"
+          }`}
+        >
+          <GraduationCap className="w-4 h-4" /> Education
+        </button>
+        <button
+          onClick={() => setActiveTab("work")}
+          className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors flex items-center gap-2 ${
+            activeTab === "work" ? "bg-indigo-50 text-indigo-700 border-b-2 border-indigo-600" : "text-slate-500 hover:text-slate-700"
+          }`}
+        >
+          <Briefcase className="w-4 h-4" /> Work History
+        </button>
+        <button
+          onClick={() => setActiveTab("skills")}
+          className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors flex items-center gap-2 ${
+            activeTab === "skills" ? "bg-indigo-50 text-indigo-700 border-b-2 border-indigo-600" : "text-slate-500 hover:text-slate-700"
+          }`}
+        >
+          <Award className="w-4 h-4" /> Skills & PR
+        </button>
+      </div>
+
+      <div className="bg-slate-50/50 rounded-xl p-4 min-h-[300px]">
+        {/* Education Section */}
+        {activeTab === "education" && (
+          <div className="space-y-4">
+            {(formData.education || []).map((edu, index) => (
+              <Card key={index} className="relative overflow-hidden border-indigo-100 shadow-sm">
+                <Button variant="ghost" size="icon" className="absolute top-2 right-2 text-slate-400 hover:text-red-500" onClick={() => removeEducation(index)}>
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+                <CardContent className="pt-6 grid gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs font-semibold text-slate-500">School / University</Label>
+                      <Input 
+                        placeholder="e.g. University of Tokyo" 
+                        value={edu.schoolName} 
+                        onChange={(e) => updateEducation(index, "schoolName", e.target.value)} 
+                        className="bg-white"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs font-semibold text-slate-500">Degree / Major</Label>
+                      <Input 
+                        placeholder="e.g. BS Computer Science" 
+                        value={edu.degree || ""} 
+                        onChange={(e) => updateEducation(index, "degree", e.target.value)}
+                        className="bg-white" 
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs font-semibold text-slate-500">Start Date</Label>
+                      <Input 
+                        type="month" 
+                        value={edu.startDate} 
+                        onChange={(e) => updateEducation(index, "startDate", e.target.value)}
+                        className="bg-white"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs font-semibold text-slate-500">End Date</Label>
+                      <Input 
+                        type="month" 
+                        value={edu.endDate || ""} 
+                        onChange={(e) => updateEducation(index, "endDate", e.target.value)}
+                        disabled={edu.isCurrent}
+                        className="bg-white"
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+            <Button onClick={addEducation} variant="outline" className="w-full border-dashed border-indigo-300 text-indigo-600 hover:bg-indigo-50">
+              <Plus className="w-4 h-4 mr-2" /> Add Education
+            </Button>
+          </div>
+        )}
+
+        {/* Work Experience Section */}
+        {activeTab === "work" && (
+          <div className="space-y-4">
+            {(formData.workExperience || []).map((work, index) => (
+              <Card key={index} className="relative overflow-hidden border-indigo-100 shadow-sm">
+                <Button variant="ghost" size="icon" className="absolute top-2 right-2 text-slate-400 hover:text-red-500" onClick={() => removeWork(index)}>
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+                <CardContent className="pt-6 grid gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs font-semibold text-slate-500">Company Name</Label>
+                      <Input 
+                        placeholder="e.g. Google" 
+                        value={work.companyName} 
+                        onChange={(e) => updateWork(index, "companyName", e.target.value)} 
+                        className="bg-white"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs font-semibold text-slate-500">Position / Title</Label>
+                      <Input 
+                        placeholder="e.g. Senior Engineer" 
+                        value={work.position} 
+                        onChange={(e) => updateWork(index, "position", e.target.value)}
+                        className="bg-white" 
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs font-semibold text-slate-500">Start Date</Label>
+                      <Input 
+                        type="month" 
+                        value={work.startDate} 
+                        onChange={(e) => updateWork(index, "startDate", e.target.value)}
+                        className="bg-white"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs font-semibold text-slate-500">End Date</Label>
+                      <Input 
+                        type="month" 
+                        value={work.endDate || ""} 
+                        onChange={(e) => updateWork(index, "endDate", e.target.value)}
+                        className="bg-white"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs font-semibold text-slate-500">Description</Label>
+                    <Textarea 
+                      placeholder="Describe your responsibilities and achievements..." 
+                      value={work.description} 
+                      onChange={(e) => updateWork(index, "description", e.target.value)}
+                      className="bg-white min-h-[100px]"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+            <Button onClick={addWork} variant="outline" className="w-full border-dashed border-indigo-300 text-indigo-600 hover:bg-indigo-50">
+              <Plus className="w-4 h-4 mr-2" /> Add Work Experience
+            </Button>
+          </div>
+        )}
+
+        {/* Skills & PR Section */}
+        {activeTab === "skills" && (
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                <Award className="w-4 h-4" /> Skills & Certifications
+              </Label>
+              <Textarea 
+                placeholder="List your skills (e.g. React, Python, AWS) and certifications..."
+                value={formData.skills?.join(", ")}
+                onChange={(e) => setFormData({...formData, skills: e.target.value.split(",").map(s => s.trim())})}
+                className="bg-white min-h-[80px]"
+              />
+              <p className="text-xs text-slate-500">Separate with commas</p>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                <Languages className="w-4 h-4" /> Languages
+              </Label>
+              <Input 
+                placeholder="e.g. English (Native), Japanese (N3)"
+                // Simplified for MVP - parsing text to object array later if needed, or just passing string to AI
+                onChange={(e) => {
+                    // This is a bit hacky for the UI, ideally we'd have a list input. 
+                    // For now, let's just store it in a temp field or let AI parse it from a single string if we change the type
+                    // But here we are bound by ResumeData type.
+                    // Let's implement a simple parser or just use a text area for "Self Promotion" which includes everything.
+                }}
+                className="bg-white"
+              />
+              <p className="text-xs text-slate-500">Format: Language (Level)</p>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                <Sparkles className="w-4 h-4" /> Self Promotion / Motivation
+              </Label>
+              <Textarea 
+                placeholder="Describe your strengths and motivation..."
+                value={formData.selfPromotion}
+                onChange={(e) => setFormData({...formData, selfPromotion: e.target.value})}
+                className="bg-white min-h-[120px]"
+              />
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+

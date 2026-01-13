@@ -48,7 +48,8 @@ export interface Language {
 
 // AI生成リクエストの型
 export interface GenerateResumeRequest {
-  currentResumeText?: string; // OCR等で抽出したテキスト
+  currentResumeText?: string; // OCR等で抽出したテキスト (PDFアップロード時)
+  structuredData?: Partial<ResumeData>; // フォーム入力時
   userProfile?: Partial<ResumeData['basicInfo']>;
   jobDescription?: string; // 応募先JD (あれば最適化に使用)
 }

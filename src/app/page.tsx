@@ -7,11 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Upload, FileText, CheckCircle, Loader2, Download, X, Sparkles, User, ChevronRight, Zap, Globe, FileDown } from "lucide-react";
+import { Upload, FileText, CheckCircle, Loader2, Download, X, Sparkles, User, ChevronRight, Zap, Globe, FileDown, Pencil } from "lucide-react";
 import { ResumeData } from "@/types/resume";
 import { saveAs } from "file-saver";
 import { generateResumeZip, checkMissingItems, MissingItems } from "@/lib/word-generator";
 import { motion, AnimatePresence } from "framer-motion";
+import { ManualForm } from "@/components/resume-form/ManualForm";
 
 export default function Home() {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -22,9 +23,20 @@ export default function Home() {
   const [progress, setProgress] = useState(0);
   const [missingItems, setMissingItems] = useState<MissingItems | null>(null);
   const [isPdfUploaded, setIsPdfUploaded] = useState(false);
+  
+  // Basic Info State
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
+
+  // Structured Form Data (for manual input)
+  const [manualFormData, setManualFormData] = useState<Partial<ResumeData>>({
+    education: [],
+    workExperience: [],
+    skills: [],
+    selfPromotion: ""
+  });
+  const [inputMode, setInputMode] = useState<"pdf" | "manual">("pdf"); // Toggle between PDF upload and manual form
 
   const pdfInputRef = useRef<HTMLInputElement>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
@@ -77,6 +89,7 @@ export default function Home() {
       if (data.success) {
         setResumeText(data.text);
         setIsPdfUploaded(true);
+        setInputMode("pdf"); // Force PDF mode on successful upload
       } else {
         alert(`Failed to extract text from PDF: ${data.details || data.error || "Unknown error"}`);
       }
@@ -116,18 +129,27 @@ export default function Home() {
     setMissingItems(null);
 
     try {
+      // Build the request body
+      const requestBody: any = {
+        userProfile: {
+          firstName: firstName || "Taro", 
+          lastName: lastName || "Yamada", 
+          email: email || "taro.yamada@example.com",
+          photoBase64: photoPreview
+        }
+      };
+
+      if (inputMode === "pdf") {
+        requestBody.currentResumeText = resumeText;
+      } else {
+        // Pass structured data if in manual mode
+        requestBody.structuredData = manualFormData;
+      }
+
       const response = await fetch("/api/generate-resume", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userProfile: {
-            firstName: firstName || "Taro", 
-            lastName: lastName || "Yamada", 
-            email: email || "taro.yamada@example.com",
-            photoBase64: photoPreview
-          },
-          currentResumeText: resumeText
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       const data = await response.json();
@@ -173,6 +195,19 @@ export default function Home() {
       transition: {
         staggerChildren: 0.2
       }
+    }
+  };
+
+  // Check if form is valid enough to generate
+  const isFormValid = () => {
+    if (inputMode === "pdf") {
+      return !!resumeText || !!photoPreview;
+    } else {
+      // In manual mode, check if at least one education or work experience is added, or self promotion
+      const hasEducation = (manualFormData.education?.length || 0) > 0;
+      const hasWork = (manualFormData.workExperience?.length || 0) > 0;
+      const hasPR = !!manualFormData.selfPromotion;
+      return hasEducation || hasWork || hasPR;
     }
   };
 
@@ -368,68 +403,75 @@ export default function Home() {
                 </Card>
               </motion.div>
 
-              {/* Resume Upload Card */}
+              {/* Resume Details: Tab Switcher (PDF / Manual) */}
               <motion.div whileHover={{ scale: 1.01 }} transition={{ duration: 0.2 }}>
                 <Card className="border-slate-200 shadow-sm hover:shadow-md transition-shadow duration-300">
-                  <CardHeader className="bg-white border-b border-slate-100 pb-4">
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <FileText className="w-5 h-5 text-indigo-600" />
-                      Experience & Skills
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="pt-6 space-y-4 bg-white">
-                     <div 
-                        className={`relative border-2 border-dashed rounded-xl p-8 flex flex-col items-center justify-center text-center transition-all cursor-pointer ${
-                          resumeText ? 'border-green-300 bg-green-50' : 'border-indigo-200 bg-indigo-50/50 hover:bg-indigo-50 hover:border-indigo-400'
-                        }`}
-                        onClick={() => pdfInputRef.current?.click()}
-                      >
-                        <input ref={pdfInputRef} type="file" accept=".pdf" className="hidden" onChange={handleFileUpload} />
-                        
-                        {isUploading ? (
-                          <div className="flex flex-col items-center animate-pulse">
-                            <Loader2 className="w-10 h-10 text-indigo-600 animate-spin mb-3" />
-                            <p className="text-indigo-800 font-medium">Analyzing PDF...</p>
-                          </div>
-                        ) : (isPdfUploaded && resumeText) ? (
-                          <div className="flex flex-col items-center">
-                            <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mb-3">
-                              <CheckCircle className="w-6 h-6 text-green-600" />
-                            </div>
-                            <p className="text-green-800 font-medium text-lg">Resume Uploaded</p>
-                            <p className="text-green-600 text-sm mt-1">Ready to translate</p>
-                            <Button variant="ghost" size="sm" className="mt-2 text-green-700 hover:text-green-800 hover:bg-green-100" onClick={(e) => { e.stopPropagation(); setResumeText(""); setIsPdfUploaded(false); }}>
-                               Remove & Upload New
-                            </Button>
-                          </div>
-                        ) : (
-                          <>
-                            <div className="w-14 h-14 rounded-full bg-white shadow-sm flex items-center justify-center mb-4">
-                               <Upload className="w-6 h-6 text-indigo-600" />
-                            </div>
-                            <h4 className="text-lg font-semibold text-indigo-900">Drop your Resume PDF</h4>
-                            <p className="text-indigo-600/80 text-sm mt-2 max-w-xs mx-auto">
-                              English or Japanese accepted. <br/>AI will extract and refine your experience.
-                            </p>
-                            <p className="text-indigo-400 text-xs mt-2">
-                              Max size: 4MB
-                            </p>
-                          </>
-                        )}
+                  <CardHeader className="bg-white border-b border-slate-100 pb-0 pt-4 px-4">
+                     <div className="flex items-center gap-6">
+                        <button 
+                          onClick={() => setInputMode("pdf")}
+                          className={`flex items-center gap-2 pb-4 px-2 border-b-2 transition-all ${inputMode === "pdf" ? "border-indigo-600 text-indigo-700" : "border-transparent text-slate-500 hover:text-slate-700"}`}
+                        >
+                           <FileText className="w-4 h-4" />
+                           <span className="font-semibold text-sm">Upload PDF</span>
+                        </button>
+                        <button 
+                          onClick={() => setInputMode("manual")}
+                          className={`flex items-center gap-2 pb-4 px-2 border-b-2 transition-all ${inputMode === "manual" ? "border-indigo-600 text-indigo-700" : "border-transparent text-slate-500 hover:text-slate-700"}`}
+                        >
+                           <Pencil className="w-4 h-4" />
+                           <span className="font-semibold text-sm">Enter Manually</span>
+                        </button>
                      </div>
-                     
-                     {!isPdfUploaded && (
-                       <div className="text-center">
-                         <span className="text-xs text-slate-400 uppercase tracking-widest bg-white px-2 relative z-10">or enter manually</span>
-                         <div className="border-t border-slate-100 -mt-2"></div>
-                         <Textarea 
-                           placeholder={"Paste your full resume text here, or describe your background in detail including:\n- Education (University, Degree, Year)\n- Work Experience (Company, Role, Duration, Key Achievements)\n- Skills & Certifications\n- Languages"}
-                           className="mt-4 min-h-[160px] bg-slate-50 border-slate-200 focus:border-indigo-300 transition-colors"
-                           value={resumeText}
-                           onChange={(e) => setResumeText(e.target.value)}
-                         />
-                       </div>
-                     )}
+                  </CardHeader>
+                  <CardContent className="pt-6 space-y-4 bg-white min-h-[300px]">
+                    {inputMode === "pdf" ? (
+                      /* PDF UPLOAD MODE */
+                      <div className="animate-in fade-in zoom-in duration-300">
+                         <div 
+                            className={`relative border-2 border-dashed rounded-xl p-8 flex flex-col items-center justify-center text-center transition-all cursor-pointer ${
+                              resumeText ? 'border-green-300 bg-green-50' : 'border-indigo-200 bg-indigo-50/50 hover:bg-indigo-50 hover:border-indigo-400'
+                            }`}
+                            onClick={() => pdfInputRef.current?.click()}
+                          >
+                            <input ref={pdfInputRef} type="file" accept=".pdf" className="hidden" onChange={handleFileUpload} />
+                            
+                            {isUploading ? (
+                              <div className="flex flex-col items-center animate-pulse">
+                                <Loader2 className="w-10 h-10 text-indigo-600 animate-spin mb-3" />
+                                <p className="text-indigo-800 font-medium">Analyzing PDF...</p>
+                              </div>
+                            ) : (isPdfUploaded && resumeText) ? (
+                              <div className="flex flex-col items-center">
+                                <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mb-3">
+                                  <CheckCircle className="w-6 h-6 text-green-600" />
+                                </div>
+                                <p className="text-green-800 font-medium text-lg">Resume Uploaded</p>
+                                <p className="text-green-600 text-sm mt-1">Ready to translate</p>
+                                <Button variant="ghost" size="sm" className="mt-2 text-green-700 hover:text-green-800 hover:bg-green-100" onClick={(e) => { e.stopPropagation(); setResumeText(""); setIsPdfUploaded(false); }}>
+                                   Remove & Upload New
+                                </Button>
+                              </div>
+                            ) : (
+                              <>
+                                <div className="w-14 h-14 rounded-full bg-white shadow-sm flex items-center justify-center mb-4">
+                                   <Upload className="w-6 h-6 text-indigo-600" />
+                                </div>
+                                <h4 className="text-lg font-semibold text-indigo-900">Drop your Resume PDF</h4>
+                                <p className="text-indigo-600/80 text-sm mt-2 max-w-xs mx-auto">
+                                  English or Japanese accepted. <br/>AI will extract and refine your experience.
+                                </p>
+                                <p className="text-indigo-400 text-xs mt-2">
+                                  Max size: 4MB
+                                </p>
+                              </>
+                            )}
+                         </div>
+                      </div>
+                    ) : (
+                      /* MANUAL FORM MODE */
+                      <ManualForm formData={manualFormData} setFormData={setManualFormData} />
+                    )}
                   </CardContent>
                 </Card>
               </motion.div>
@@ -446,7 +488,7 @@ export default function Home() {
                  )}
                  <Button 
                    onClick={handleGenerate} 
-                   disabled={isGenerating || (!resumeText && !photoPreview)}
+                   disabled={isGenerating || !isFormValid()}
                    className="w-full h-16 text-lg rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 shadow-lg shadow-indigo-200 transition-all transform hover:scale-[1.01] active:scale-[0.99]"
                  >
                    {isGenerating ? (
@@ -466,6 +508,14 @@ export default function Home() {
                        AI is translating your experience into professional Japanese...
                     </p>
                  )}
+                 {/* AI推論に関する免責事項 */}
+                 <div className="bg-blue-50 border border-blue-200 rounded-md p-4 text-sm text-blue-800 mt-2 text-left">
+                    <p className="font-bold mb-1 flex items-center"><span className="text-xl mr-1">💡</span> AI Note:</p>
+                    <p className="text-xs opacity-90">
+                      提供された情報が不足している場合、AIは推測を交えて内容を補完することがあります。
+                      <br/>必ず提出前にご自身で内容を確認・編集してください。
+                    </p>
+                 </div>
               </div>
             </div>
 
