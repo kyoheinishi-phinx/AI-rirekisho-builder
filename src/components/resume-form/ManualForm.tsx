@@ -33,6 +33,10 @@ const JAPANESE_LEVELS = [
   "N5 (Basic)"
 ];
 
+const LANGUAGES_LIST = [
+  "English", "Japanese", "Chinese", "Spanish", "Hindi", "French", "Korean", "Vietnamese", "Thai", "Indonesian", "Malay", "Tagalog"
+];
+
 export function ManualForm({ formData, setFormData }: ManualFormProps) {
   const [activeTab, setActiveTab] = useState<"education" | "work" | "skills">("education");
   const [skillInput, setSkillInput] = useState("");
@@ -336,28 +340,38 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
               <div className="space-y-3">
                 {(formData.languages || []).map((lang, index) => (
                    <div key={index} className="flex gap-2 items-center bg-white p-2 rounded-lg border border-slate-200">
-                      <Input 
-                        placeholder="Language (e.g. English)"
-                        value={lang.language}
-                        onChange={(e) => updateLanguage(index, "language", e.target.value)}
-                        className="flex-1 border-0 focus-visible:ring-0 px-2"
-                      />
-                      <Select 
-                        value={lang.level} 
-                        onValueChange={(val) => updateLanguage(index, "level", val)}
-                      >
-                        <SelectTrigger className="w-[180px] border-l rounded-none">
-                          <SelectValue placeholder="Select Level" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {isJapanese(lang.language) ? (
-                             JAPANESE_LEVELS.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)
-                          ) : (
-                             LANGUAGE_LEVELS.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)
-                          )}
-                        </SelectContent>
-                      </Select>
-                      <Button variant="ghost" size="icon" className="text-slate-400 hover:text-red-500 h-8 w-8" onClick={() => removeLanguage(index)}>
+                      <div className="flex-1">
+                        <Select 
+                          value={lang.language} 
+                          onValueChange={(val) => updateLanguage(index, "language", val)}
+                        >
+                          <SelectTrigger className="border-0 focus-visible:ring-0 px-2 shadow-none">
+                            <SelectValue placeholder="Language" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {LANGUAGES_LIST.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}
+                            <SelectItem value="Other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="w-[180px] border-l">
+                        <Select 
+                          value={lang.level} 
+                          onValueChange={(val) => updateLanguage(index, "level", val)}
+                        >
+                          <SelectTrigger className="border-0 rounded-none shadow-none focus-visible:ring-0">
+                            <SelectValue placeholder="Level" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {isJapanese(lang.language) ? (
+                               JAPANESE_LEVELS.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)
+                            ) : (
+                               LANGUAGE_LEVELS.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)
+                            )}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <Button variant="ghost" size="icon" className="text-slate-400 hover:text-red-500 h-8 w-8 shrink-0" onClick={() => removeLanguage(index)}>
                         <X className="w-4 h-4" />
                       </Button>
                    </div>
