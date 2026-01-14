@@ -123,3 +123,14 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Fix date input styling on mobile Safari */
+input[type="month"],
+input[type="date"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  min-height: 2.5rem;
+  height: 2.5rem;
+  line-height: 1.5;
+}
