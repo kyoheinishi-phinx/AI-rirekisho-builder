@@ -191,7 +191,7 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                         placeholder="e.g. University of Tokyo" 
                         value={edu.schoolName} 
                         onChange={(e) => updateEducation(index, "schoolName", e.target.value)} 
-                        className="bg-white min-w-0"
+                        className="bg-white block w-full max-w-full"
                       />
                     </div>
                     <div className="space-y-2 w-full min-w-0">
@@ -200,22 +200,22 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                         placeholder="e.g. BS Computer Science" 
                         value={edu.degree || ""} 
                         onChange={(e) => updateEducation(index, "degree", e.target.value)}
-                        className="bg-white min-w-0" 
+                        className="bg-white block w-full max-w-full" 
                       />
                     </div>
                   </div>
                   <div className="flex flex-col sm:grid sm:grid-cols-2 gap-4 w-full">
-                    <div className="space-y-2 w-full min-w-0">
+                    <div className="space-y-2 w-full min-w-0 overflow-hidden">
                       <Label className="text-xs font-semibold text-slate-500">Start Date</Label>
                       <Input 
                         type="month" 
                         lang="en" // Hint for English locale
                         value={edu.startDate} 
                         onChange={(e) => updateEducation(index, "startDate", e.target.value)}
-                        className="bg-white min-w-0"
+                        className="bg-white block w-full max-w-full overflow-hidden"
                       />
                     </div>
-                    <div className="space-y-2 w-full min-w-0">
+                    <div className="space-y-2 w-full min-w-0 overflow-hidden">
                       <Label className="text-xs font-semibold text-slate-500">End Date</Label>
                       <Input 
                         type="month" 
@@ -223,7 +223,7 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                         value={edu.endDate || ""} 
                         onChange={(e) => updateEducation(index, "endDate", e.target.value)}
                         disabled={edu.isCurrent}
-                        className="bg-white min-w-0"
+                        className="bg-white block w-full max-w-full overflow-hidden"
                       />
                     </div>
                   </div>
@@ -252,7 +252,7 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                         placeholder="e.g. Google" 
                         value={work.companyName} 
                         onChange={(e) => updateWork(index, "companyName", e.target.value)} 
-                        className="bg-white min-w-0"
+                        className="bg-white block w-full max-w-full"
                       />
                     </div>
                     <div className="space-y-2 w-full min-w-0">
@@ -261,29 +261,29 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                         placeholder="e.g. Senior Engineer" 
                         value={work.position} 
                         onChange={(e) => updateWork(index, "position", e.target.value)}
-                        className="bg-white min-w-0" 
+                        className="bg-white block w-full max-w-full" 
                       />
                     </div>
                   </div>
                   <div className="flex flex-col sm:grid sm:grid-cols-2 gap-4 w-full">
-                    <div className="space-y-2 w-full min-w-0">
+                    <div className="space-y-2 w-full min-w-0 overflow-hidden">
                       <Label className="text-xs font-semibold text-slate-500">Start Date</Label>
                       <Input 
                         type="month" 
                         lang="en"
                         value={work.startDate} 
                         onChange={(e) => updateWork(index, "startDate", e.target.value)}
-                        className="bg-white min-w-0"
+                        className="bg-white block w-full max-w-full overflow-hidden"
                       />
                     </div>
-                    <div className="space-y-2 w-full min-w-0">
+                    <div className="space-y-2 w-full min-w-0 overflow-hidden">
                       <Label className="text-xs font-semibold text-slate-500">End Date</Label>
                       <Input 
                         type="month" 
                         lang="en"
                         value={work.endDate || ""} 
                         onChange={(e) => updateWork(index, "endDate", e.target.value)}
-                        className="bg-white min-w-0"
+                        className="bg-white block w-full max-w-full overflow-hidden"
                       />
                     </div>
                   </div>
