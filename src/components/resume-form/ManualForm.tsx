@@ -181,7 +181,7 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                   <Trash2 className="w-4 h-4" />
                 </Button>
                 <CardContent className="pt-4 sm:pt-6 px-3 sm:px-6 grid gap-4">
-                  <div className="grid grid-cols-2 gap-2 sm:gap-4">
+                  <div className="flex flex-col sm:grid sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label className="text-xs font-semibold text-slate-500">School / University</Label>
                       <Input 
@@ -201,7 +201,7 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                       />
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-2 sm:gap-4">
+                  <div className="flex flex-col sm:grid sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label className="text-xs font-semibold text-slate-500">Start Date</Label>
                       <Input 
@@ -209,7 +209,7 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                         lang="en" // Hint for English locale
                         value={edu.startDate} 
                         onChange={(e) => updateEducation(index, "startDate", e.target.value)}
-                        className="bg-white text-xs sm:text-sm px-2"
+                        className="bg-white"
                       />
                     </div>
                     <div className="space-y-2">
@@ -220,7 +220,7 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                         value={edu.endDate || ""} 
                         onChange={(e) => updateEducation(index, "endDate", e.target.value)}
                         disabled={edu.isCurrent}
-                        className="bg-white text-xs sm:text-sm px-2"
+                        className="bg-white"
                       />
                     </div>
                   </div>
@@ -242,7 +242,7 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                   <Trash2 className="w-4 h-4" />
                 </Button>
                 <CardContent className="pt-4 sm:pt-6 px-3 sm:px-6 grid gap-4">
-                  <div className="grid grid-cols-2 gap-2 sm:gap-4">
+                  <div className="flex flex-col sm:grid sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label className="text-xs font-semibold text-slate-500">Company Name</Label>
                       <Input 
@@ -262,7 +262,7 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                       />
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-2 sm:gap-4">
+                  <div className="flex flex-col sm:grid sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label className="text-xs font-semibold text-slate-500">Start Date</Label>
                       <Input 
@@ -270,7 +270,7 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                         lang="en"
                         value={work.startDate} 
                         onChange={(e) => updateWork(index, "startDate", e.target.value)}
-                        className="bg-white text-xs sm:text-sm px-2"
+                        className="bg-white"
                       />
                     </div>
                     <div className="space-y-2">
@@ -280,7 +280,7 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                         lang="en"
                         value={work.endDate || ""} 
                         onChange={(e) => updateWork(index, "endDate", e.target.value)}
-                        className="bg-white text-xs sm:text-sm px-2"
+                        className="bg-white"
                       />
                     </div>
                   </div>
