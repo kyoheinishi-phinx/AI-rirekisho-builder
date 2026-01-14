@@ -144,34 +144,37 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       {/* Tabs */}
-      <div className="flex space-x-2 border-b border-slate-200 pb-1 overflow-x-auto">
+      <div className="grid grid-cols-3 gap-1 border-b border-slate-200 pb-1">
         <button
           onClick={() => setActiveTab("education")}
-          className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors flex items-center gap-2 ${
+          className={`px-1 py-2 text-xs sm:text-sm font-medium rounded-t-lg transition-colors flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 w-full ${
             activeTab === "education" ? "bg-indigo-50 text-indigo-700 border-b-2 border-indigo-600" : "text-slate-500 hover:text-slate-700"
           }`}
         >
-          <GraduationCap className="w-4 h-4" /> Education
+          <GraduationCap className="w-4 h-4" /> 
+          <span>Education</span>
         </button>
         <button
           onClick={() => setActiveTab("work")}
-          className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors flex items-center gap-2 ${
+          className={`px-1 py-2 text-xs sm:text-sm font-medium rounded-t-lg transition-colors flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 w-full ${
             activeTab === "work" ? "bg-indigo-50 text-indigo-700 border-b-2 border-indigo-600" : "text-slate-500 hover:text-slate-700"
           }`}
         >
-          <Briefcase className="w-4 h-4" /> Work History
+          <Briefcase className="w-4 h-4" /> 
+          <span className="text-center leading-tight">Work History</span>
         </button>
         <button
           onClick={() => setActiveTab("skills")}
-          className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors flex items-center gap-2 ${
+          className={`px-1 py-2 text-xs sm:text-sm font-medium rounded-t-lg transition-colors flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 w-full ${
             activeTab === "skills" ? "bg-indigo-50 text-indigo-700 border-b-2 border-indigo-600" : "text-slate-500 hover:text-slate-700"
           }`}
         >
-          <Award className="w-4 h-4" /> Skills & PR
+          <Award className="w-4 h-4" /> 
+          <span className="text-center leading-tight">Skills & PR</span>
         </button>
       </div>
 
-      <div className="bg-slate-50/50 rounded-xl p-3 sm:p-4 min-h-[300px]">
+      <div className="bg-slate-50/50 rounded-xl p-2 sm:p-4 min-h-[300px]">
         {/* Education Section */}
         {activeTab === "education" && (
           <div className="space-y-4">
@@ -180,7 +183,7 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                 <Button variant="ghost" size="icon" className="absolute top-2 right-2 text-slate-400 hover:text-red-500" onClick={() => removeEducation(index)}>
                   <Trash2 className="w-4 h-4" />
                 </Button>
-                <CardContent className="pt-4 sm:pt-6 px-3 sm:px-6 flex flex-col gap-4">
+                <CardContent className="pt-4 sm:pt-6 px-2 sm:px-6 flex flex-col gap-4">
                   <div className="flex flex-col sm:grid sm:grid-cols-2 gap-4 w-full">
                     <div className="space-y-2 w-full min-w-0">
                       <Label className="text-xs font-semibold text-slate-500">School / University</Label>
@@ -241,7 +244,7 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                 <Button variant="ghost" size="icon" className="absolute top-2 right-2 text-slate-400 hover:text-red-500" onClick={() => removeWork(index)}>
                   <Trash2 className="w-4 h-4" />
                 </Button>
-                <CardContent className="pt-4 sm:pt-6 px-3 sm:px-6 flex flex-col gap-4">
+                <CardContent className="pt-4 sm:pt-6 px-2 sm:px-6 flex flex-col gap-4">
                   <div className="flex flex-col sm:grid sm:grid-cols-2 gap-4 w-full">
                     <div className="space-y-2 w-full min-w-0">
                       <Label className="text-xs font-semibold text-slate-500">Company Name</Label>
