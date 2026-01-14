@@ -171,7 +171,7 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
         </button>
       </div>
 
-      <div className="bg-slate-50/50 rounded-xl p-4 min-h-[300px]">
+      <div className="bg-slate-50/50 rounded-xl p-3 sm:p-4 min-h-[300px]">
         {/* Education Section */}
         {activeTab === "education" && (
           <div className="space-y-4">
@@ -180,8 +180,8 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                 <Button variant="ghost" size="icon" className="absolute top-2 right-2 text-slate-400 hover:text-red-500" onClick={() => removeEducation(index)}>
                   <Trash2 className="w-4 h-4" />
                 </Button>
-                <CardContent className="pt-6 grid gap-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <CardContent className="pt-4 sm:pt-6 px-3 sm:px-6 grid gap-4">
+                  <div className="grid grid-cols-2 gap-2 sm:gap-4">
                     <div className="space-y-2">
                       <Label className="text-xs font-semibold text-slate-500">School / University</Label>
                       <Input 
@@ -201,7 +201,7 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                       />
                     </div>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-2 sm:gap-4">
                     <div className="space-y-2">
                       <Label className="text-xs font-semibold text-slate-500">Start Date</Label>
                       <Input 
@@ -209,7 +209,7 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                         lang="en" // Hint for English locale
                         value={edu.startDate} 
                         onChange={(e) => updateEducation(index, "startDate", e.target.value)}
-                        className="bg-white"
+                        className="bg-white text-xs sm:text-sm px-2"
                       />
                     </div>
                     <div className="space-y-2">
@@ -220,7 +220,7 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                         value={edu.endDate || ""} 
                         onChange={(e) => updateEducation(index, "endDate", e.target.value)}
                         disabled={edu.isCurrent}
-                        className="bg-white"
+                        className="bg-white text-xs sm:text-sm px-2"
                       />
                     </div>
                   </div>
@@ -241,8 +241,8 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                 <Button variant="ghost" size="icon" className="absolute top-2 right-2 text-slate-400 hover:text-red-500" onClick={() => removeWork(index)}>
                   <Trash2 className="w-4 h-4" />
                 </Button>
-                <CardContent className="pt-6 grid gap-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <CardContent className="pt-4 sm:pt-6 px-3 sm:px-6 grid gap-4">
+                  <div className="grid grid-cols-2 gap-2 sm:gap-4">
                     <div className="space-y-2">
                       <Label className="text-xs font-semibold text-slate-500">Company Name</Label>
                       <Input 
@@ -262,7 +262,7 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                       />
                     </div>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-2 sm:gap-4">
                     <div className="space-y-2">
                       <Label className="text-xs font-semibold text-slate-500">Start Date</Label>
                       <Input 
@@ -270,7 +270,7 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                         lang="en"
                         value={work.startDate} 
                         onChange={(e) => updateWork(index, "startDate", e.target.value)}
-                        className="bg-white"
+                        className="bg-white text-xs sm:text-sm px-2"
                       />
                     </div>
                     <div className="space-y-2">
@@ -280,7 +280,7 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                         lang="en"
                         value={work.endDate || ""} 
                         onChange={(e) => updateWork(index, "endDate", e.target.value)}
-                        className="bg-white"
+                        className="bg-white text-xs sm:text-sm px-2"
                       />
                     </div>
                   </div>

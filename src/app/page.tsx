@@ -406,7 +406,7 @@ export default function Home() {
               {/* Resume Details: Tab Switcher (PDF / Manual) */}
               <motion.div whileHover={{ scale: 1.01 }} transition={{ duration: 0.2 }}>
                 <Card className="border-slate-200 shadow-sm hover:shadow-md transition-shadow duration-300">
-                  <CardHeader className="bg-white border-b border-slate-100 pb-0 pt-4 px-4">
+                  <CardHeader className="bg-white border-b border-slate-100 pb-0 pt-4 px-3 sm:px-4">
                      <div className="flex items-center gap-6">
                         <button 
                           onClick={() => setInputMode("pdf")}
@@ -424,7 +424,7 @@ export default function Home() {
                         </button>
                      </div>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-4 bg-white min-h-[300px]">
+                  <CardContent className="pt-4 sm:pt-6 px-3 sm:px-6 space-y-4 bg-white min-h-[300px]">
                     {inputMode === "pdf" ? (
                       /* PDF UPLOAD MODE */
                       <div className="animate-in fade-in zoom-in duration-300">
