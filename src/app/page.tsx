@@ -382,7 +382,7 @@ export default function Home() {
                             <input ref={photoInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
                           </div>
                        )}
-                       <div className="flex-1 space-y-3">
+                       <div className="flex-1 w-full space-y-3">
                           <div className="flex flex-col sm:flex-row gap-3 w-full max-w-full">
                             <div className="space-y-1.5 flex-1 min-w-0">
                               <Label htmlFor="firstName" className="text-xs uppercase text-slate-500 tracking-wider">First Name</Label>

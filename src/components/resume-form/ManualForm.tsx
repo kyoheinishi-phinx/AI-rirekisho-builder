@@ -191,7 +191,7 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                         placeholder="e.g. University of Tokyo" 
                         value={edu.schoolName} 
                         onChange={(e) => updateEducation(index, "schoolName", e.target.value)} 
-                        className="bg-white"
+                        className="bg-white min-w-0"
                       />
                     </div>
                     <div className="space-y-2 w-full min-w-0">
@@ -200,7 +200,7 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                         placeholder="e.g. BS Computer Science" 
                         value={edu.degree || ""} 
                         onChange={(e) => updateEducation(index, "degree", e.target.value)}
-                        className="bg-white" 
+                        className="bg-white min-w-0" 
                       />
                     </div>
                   </div>
@@ -212,7 +212,7 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                         lang="en" // Hint for English locale
                         value={edu.startDate} 
                         onChange={(e) => updateEducation(index, "startDate", e.target.value)}
-                        className="bg-white"
+                        className="bg-white min-w-0"
                       />
                     </div>
                     <div className="space-y-2 w-full min-w-0">
@@ -223,7 +223,7 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                         value={edu.endDate || ""} 
                         onChange={(e) => updateEducation(index, "endDate", e.target.value)}
                         disabled={edu.isCurrent}
-                        className="bg-white"
+                        className="bg-white min-w-0"
                       />
                     </div>
                   </div>
@@ -252,7 +252,7 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                         placeholder="e.g. Google" 
                         value={work.companyName} 
                         onChange={(e) => updateWork(index, "companyName", e.target.value)} 
-                        className="bg-white"
+                        className="bg-white min-w-0"
                       />
                     </div>
                     <div className="space-y-2 w-full min-w-0">
@@ -261,7 +261,7 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                         placeholder="e.g. Senior Engineer" 
                         value={work.position} 
                         onChange={(e) => updateWork(index, "position", e.target.value)}
-                        className="bg-white" 
+                        className="bg-white min-w-0" 
                       />
                     </div>
                   </div>
@@ -273,7 +273,7 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                         lang="en"
                         value={work.startDate} 
                         onChange={(e) => updateWork(index, "startDate", e.target.value)}
-                        className="bg-white"
+                        className="bg-white min-w-0"
                       />
                     </div>
                     <div className="space-y-2 w-full min-w-0">
@@ -283,7 +283,7 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                         lang="en"
                         value={work.endDate || ""} 
                         onChange={(e) => updateWork(index, "endDate", e.target.value)}
-                        className="bg-white"
+                        className="bg-white min-w-0"
                       />
                     </div>
                   </div>
