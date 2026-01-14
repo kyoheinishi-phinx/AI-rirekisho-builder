@@ -363,7 +363,7 @@ export default function Home() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="pt-6 bg-white">
-                    <div className="flex items-start gap-6">
+                    <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
                        {photoPreview ? (
                           <div className="relative w-32 h-40 border-2 border-slate-200 rounded-lg overflow-hidden group shadow-sm flex-shrink-0">
                             <Image src={photoPreview} alt="Preview" fill className="object-cover" />
@@ -383,12 +383,12 @@ export default function Home() {
                           </div>
                        )}
                        <div className="flex-1 space-y-3">
-                          <div className="grid grid-cols-2 gap-3">
-                            <div className="space-y-1.5">
+                          <div className="flex flex-col sm:flex-row gap-3 w-full">
+                            <div className="space-y-1.5 flex-1">
                               <Label htmlFor="firstName" className="text-xs uppercase text-slate-500 tracking-wider">First Name</Label>
                               <Input id="firstName" placeholder="Taro" className="bg-slate-50 border-slate-200 focus:border-indigo-300 transition-colors" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
                             </div>
-                            <div className="space-y-1.5">
+                            <div className="space-y-1.5 flex-1">
                               <Label htmlFor="lastName" className="text-xs uppercase text-slate-500 tracking-wider">Last Name</Label>
                               <Input id="lastName" placeholder="Yamada" className="bg-slate-50 border-slate-200 focus:border-indigo-300 transition-colors" value={lastName} onChange={(e) => setLastName(e.target.value)} />
                             </div>

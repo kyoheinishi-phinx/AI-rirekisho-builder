@@ -201,7 +201,7 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                       />
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label className="text-xs font-semibold text-slate-500">Start Date</Label>
                       <Input 
@@ -262,7 +262,7 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                       />
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label className="text-xs font-semibold text-slate-500">Start Date</Label>
                       <Input 
@@ -321,7 +321,7 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
               </div>
               <div className="flex gap-2">
                 <Input 
-                  placeholder="Type a skill and press Enter (e.g. React, Python)"
+                  placeholder="e.g. React"
                   value={skillInput}
                   onChange={(e) => setSkillInput(e.target.value)}
                   onKeyDown={handleSkillKeyDown}
@@ -339,27 +339,34 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
               </Label>
               <div className="space-y-3">
                 {(formData.languages || []).map((lang, index) => (
-                   <div key={index} className="flex gap-2 items-center bg-white p-2 rounded-lg border border-slate-200">
-                      <div className="flex-1">
-                        <Select 
-                          value={lang.language} 
-                          onValueChange={(val) => updateLanguage(index, "language", val)}
-                        >
-                          <SelectTrigger className="border-0 focus-visible:ring-0 px-2 shadow-none">
-                            <SelectValue placeholder="Language" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {LANGUAGES_LIST.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}
-                            <SelectItem value="Other">Other</SelectItem>
-                          </SelectContent>
-                        </Select>
+                   <div key={index} className="flex flex-col sm:flex-row gap-2 sm:items-center bg-white p-2 rounded-lg border border-slate-200">
+                      <div className="flex flex-1 items-center gap-2 w-full sm:w-auto">
+                        <div className="flex-1 min-w-0">
+                          <Select 
+                            value={lang.language} 
+                            onValueChange={(val) => updateLanguage(index, "language", val)}
+                          >
+                            <SelectTrigger className="w-full border-0 focus-visible:ring-0 px-2 shadow-none">
+                              <SelectValue placeholder="Language" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {LANGUAGES_LIST.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}
+                              <SelectItem value="Other">Other</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        {/* Mobile delete button */}
+                        <Button variant="ghost" size="icon" className="sm:hidden text-slate-400 hover:text-red-500 h-8 w-8 shrink-0" onClick={() => removeLanguage(index)}>
+                          <X className="w-4 h-4" />
+                        </Button>
                       </div>
-                      <div className="w-[180px] border-l">
+                      
+                      <div className="w-full sm:w-[180px] border-t sm:border-t-0 sm:border-l border-slate-200 pt-2 sm:pt-0 sm:pl-0">
                         <Select 
                           value={lang.level} 
                           onValueChange={(val) => updateLanguage(index, "level", val)}
                         >
-                          <SelectTrigger className="border-0 rounded-none shadow-none focus-visible:ring-0">
+                          <SelectTrigger className="w-full border-0 rounded-none shadow-none focus-visible:ring-0">
                             <SelectValue placeholder="Level" />
                           </SelectTrigger>
                           <SelectContent>
@@ -371,7 +378,8 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                           </SelectContent>
                         </Select>
                       </div>
-                      <Button variant="ghost" size="icon" className="text-slate-400 hover:text-red-500 h-8 w-8 shrink-0" onClick={() => removeLanguage(index)}>
+                      {/* Desktop delete button */}
+                      <Button variant="ghost" size="icon" className="hidden sm:flex text-slate-400 hover:text-red-500 h-8 w-8 shrink-0" onClick={() => removeLanguage(index)}>
                         <X className="w-4 h-4" />
                       </Button>
                    </div>
