@@ -383,17 +383,17 @@ export default function Home() {
                           </div>
                        )}
                        <div className="flex-1 space-y-3">
-                          <div className="flex flex-col sm:flex-row gap-3 w-full">
-                            <div className="space-y-1.5 flex-1">
+                          <div className="flex flex-col sm:flex-row gap-3 w-full max-w-full">
+                            <div className="space-y-1.5 flex-1 min-w-0">
                               <Label htmlFor="firstName" className="text-xs uppercase text-slate-500 tracking-wider">First Name</Label>
                               <Input id="firstName" placeholder="Taro" className="bg-slate-50 border-slate-200 focus:border-indigo-300 transition-colors" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
                             </div>
-                            <div className="space-y-1.5 flex-1">
+                            <div className="space-y-1.5 flex-1 min-w-0">
                               <Label htmlFor="lastName" className="text-xs uppercase text-slate-500 tracking-wider">Last Name</Label>
                               <Input id="lastName" placeholder="Yamada" className="bg-slate-50 border-slate-200 focus:border-indigo-300 transition-colors" value={lastName} onChange={(e) => setLastName(e.target.value)} />
                             </div>
                           </div>
-                          <div className="space-y-1.5">
+                          <div className="space-y-1.5 w-full min-w-0">
                              <Label htmlFor="email" className="text-xs uppercase text-slate-500 tracking-wider">Email</Label>
                              <Input id="email" type="email" placeholder="taro.yamada@example.com" className="bg-slate-50 border-slate-200 focus:border-indigo-300 transition-colors" value={email} onChange={(e) => setEmail(e.target.value)} />
                           </div>
