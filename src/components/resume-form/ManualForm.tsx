@@ -180,9 +180,9 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                 <Button variant="ghost" size="icon" className="absolute top-2 right-2 text-slate-400 hover:text-red-500" onClick={() => removeEducation(index)}>
                   <Trash2 className="w-4 h-4" />
                 </Button>
-                <CardContent className="pt-4 sm:pt-6 px-3 sm:px-6 grid gap-4">
-                  <div className="flex flex-col sm:grid sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
+                <CardContent className="pt-4 sm:pt-6 px-3 sm:px-6 flex flex-col gap-4">
+                  <div className="flex flex-col sm:grid sm:grid-cols-2 gap-4 w-full">
+                    <div className="space-y-2 w-full min-w-0">
                       <Label className="text-xs font-semibold text-slate-500">School / University</Label>
                       <Input 
                         placeholder="e.g. University of Tokyo" 
@@ -191,7 +191,7 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                         className="bg-white"
                       />
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-2 w-full min-w-0">
                       <Label className="text-xs font-semibold text-slate-500">Degree / Major</Label>
                       <Input 
                         placeholder="e.g. BS Computer Science" 
@@ -201,8 +201,8 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                       />
                     </div>
                   </div>
-                  <div className="flex flex-col sm:grid sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
+                  <div className="flex flex-col sm:grid sm:grid-cols-2 gap-4 w-full">
+                    <div className="space-y-2 w-full min-w-0">
                       <Label className="text-xs font-semibold text-slate-500">Start Date</Label>
                       <Input 
                         type="month" 
@@ -212,7 +212,7 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                         className="bg-white"
                       />
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-2 w-full min-w-0">
                       <Label className="text-xs font-semibold text-slate-500">End Date</Label>
                       <Input 
                         type="month" 
@@ -241,9 +241,9 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                 <Button variant="ghost" size="icon" className="absolute top-2 right-2 text-slate-400 hover:text-red-500" onClick={() => removeWork(index)}>
                   <Trash2 className="w-4 h-4" />
                 </Button>
-                <CardContent className="pt-4 sm:pt-6 px-3 sm:px-6 grid gap-4">
-                  <div className="flex flex-col sm:grid sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
+                <CardContent className="pt-4 sm:pt-6 px-3 sm:px-6 flex flex-col gap-4">
+                  <div className="flex flex-col sm:grid sm:grid-cols-2 gap-4 w-full">
+                    <div className="space-y-2 w-full min-w-0">
                       <Label className="text-xs font-semibold text-slate-500">Company Name</Label>
                       <Input 
                         placeholder="e.g. Google" 
@@ -252,7 +252,7 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                         className="bg-white"
                       />
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-2 w-full min-w-0">
                       <Label className="text-xs font-semibold text-slate-500">Position / Title</Label>
                       <Input 
                         placeholder="e.g. Senior Engineer" 
@@ -262,8 +262,8 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                       />
                     </div>
                   </div>
-                  <div className="flex flex-col sm:grid sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
+                  <div className="flex flex-col sm:grid sm:grid-cols-2 gap-4 w-full">
+                    <div className="space-y-2 w-full min-w-0">
                       <Label className="text-xs font-semibold text-slate-500">Start Date</Label>
                       <Input 
                         type="month" 
@@ -273,7 +273,7 @@ export function ManualForm({ formData, setFormData }: ManualFormProps) {
                         className="bg-white"
                       />
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-2 w-full min-w-0">
                       <Label className="text-xs font-semibold text-slate-500">End Date</Label>
                       <Input 
                         type="month" 
